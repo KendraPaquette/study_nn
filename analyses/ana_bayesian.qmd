@@ -1,0 +1,160 @@
+---
+title: "Model Comparisons For Different Model Penalties"
+author: "Kendra Wyant"
+date: "`r lubridate::today()`"
+output: 
+  html_document:
+    toc: true 
+    toc_depth: 4
+format:
+  html:
+    embed-resources: true
+editor_options: 
+  chunk_output_type: console
+---
+
+### Set Up Environment
+
+```{r}
+suppressPackageStartupMessages(library(tidyverse))
+suppressPackageStartupMessages(library(tidyposterior))
+```
+
+### Read in Data
+```{r}
+aucs <- read_csv(here::here("data/auc_3_x_10.csv"), 
+                 col_types = cols()) |> 
+  glimpse()
+```
+
+
+### Model evaluation
+
+Raw aurocs
+
+```{r}
+aucs |> 
+  group_by(n_repeat) |> 
+  summarise(across(xgboost:nn_lv4, ~median(.x))) |> 
+  ungroup() |> 
+  summarise(across(xgboost:nn_lv4, ~median(.x))) |> 
+  glimpse()
+```
+
+posterior probabilities for auroc
+
+```{r}
+#| output: false
+
+
+# Repeated CV (id = repeat, id2 = fold within repeat)
+# with a common variance:  statistic ~ model + (model | id2/id)
+set.seed(101)
+pp <- aucs |> 
+  rename(id = n_repeat,
+         id2 = n_split) |> 
+  perf_mod(formula = statistic ~ model + (1 | id2/id),
+         transform = tidyposterior::logit_trans,  # for skewed & bounded AUC
+         iter = 4000, chains = 4, adapt_delta = .99, # increased iteration from 2000 to fix divergence issues
+         family = gaussian, 
+)  
+
+```
+
+```{r}
+pp_tidy <- pp |> 
+  tidy(seed = 123) 
+
+q = c(.025, .5, .975)
+pp_perf_tibble <- pp_tidy |> 
+  group_by(model) |> 
+  summarize(pp_median = quantile(posterior, probs = q[2]),
+            pp_lower = quantile(posterior, probs = q[1]), 
+            pp_upper = quantile(posterior, probs = q[3])) |> 
+  mutate(model = factor(model, levels = c("xgboost", 
+                                          "nn_full", 
+                                          "nn_lv1", 
+                                          "nn_lv2", 
+                                          "nn_lv3",
+                                          "nn_lv4"))) |> 
+  arrange(model)
+
+pp_perf_tibble |> 
+  write_csv(here::here("pp_perf_tibble.csv"))
+
+pp_tidy |> 
+  write_csv(here::here("posteriors.csv"))
+
+pp_perf_tibble
+```
+
+
+### Model Comparisons
+
+Compare each Penalized Model to Full Model
+
+```{r}
+
+
+ci <- pp |>
+  contrast_models(list("nn_full", "nn_full", "nn_full", "nn_full"), 
+                  list("nn_lv1", "nn_lv2", "nn_lv3", "nn_lv4")) |> 
+  summary(size = 0) |> 
+  mutate(contrast = factor(contrast, 
+                           levels = c("nn_full vs nn_lv1", 
+                                      "nn_full vs nn_lv2", 
+                                      "nn_full vs nn_lv3", 
+                                      "nn_full vs nn_lv4"),
+                           labels = c("nn_full vs. nn_lv1", 
+                                      "nn_full vs. nn_lv2", 
+                                      "nn_full vs. nn_lv3", 
+                                      "nn_full vs. nn_lv4"))) |> 
+  arrange(contrast) |> 
+  select(-c(size:pract_pos))
+
+ci_median <- pp |> 
+  contrast_models(list("nn_full", "nn_full", "nn_full", "nn_full"), 
+                  list("nn_lv1", "nn_lv2", "nn_lv3", "nn_lv4")) |> 
+  group_by(contrast) |> 
+  summarize(median = quantile(difference, .5)) |> 
+  mutate(contrast = factor(contrast, 
+                           levels = c("nn_full vs. nn_lv1", 
+                                      "nn_full vs. nn_lv2", 
+                                      "nn_full vs. nn_lv3", 
+                                      "nn_full vs. nn_lv4"))) |> 
+  arrange(contrast)
+
+
+ci <- ci |> 
+  left_join(ci_median, by = c("contrast")) 
+
+ci |> 
+  write_csv(here::here("contrast.csv"))
+
+ci
+```
+
+
+Histograms
+```{r}
+#| echo: false
+
+pp_tidy |> 
+  mutate(model = factor(model, 
+                        levels = c("xgboost", "nn_full", "nn_lv1", 
+                                   "nn_lv2", "nn_lv3", "nn_lv4"))) |>
+  ggplot() + 
+  geom_histogram(aes(x = posterior), fill = "light grey", color = "black", 
+                 bins = 30) +
+  geom_segment(mapping = aes(y = 3000, yend = 3600, x = pp_median, 
+                             xend = pp_median),
+               data = pp_perf_tibble) +
+  geom_segment(mapping = aes(y = 3400, yend = 3400, x = pp_lower, xend = pp_upper),
+                data = pp_perf_tibble) +
+  facet_wrap(~model, ncol = 1) +
+  ylab("Posterior Probability Frequency") +
+  xlab("Area Under ROC Curve") +
+  theme_classic() 
+```
+
+

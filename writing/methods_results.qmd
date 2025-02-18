@@ -1,0 +1,161 @@
+---
+title: "Methods and Results"
+author: "Kendra Wyant and Jeongyeol Kwon"
+date: "`r lubridate::today()`"
+output: 
+  html_document:
+    toc: true 
+    toc_depth: 4
+format:
+  html:
+    embed-resources: true
+editor_options: 
+  chunk_output_type: console
+---
+
+```{r}
+#| message: false
+#| echo: false
+
+# load libraries and read in data for printing results
+
+library(tidyverse)
+library(here)
+
+aucs <- read_csv(here("data/auc_3_x_10.csv"),
+                 show_col_types = FALSE)
+posteriors <- read_csv(here("data/posteriors.csv"),
+                       show_col_types = FALSE)
+pp_tibble <- read_csv(here("data/pp_perf_tibble.csv"),
+                       show_col_types = FALSE)
+contrasts <- read_csv(here("data/contrast.csv"),
+                      show_col_types = FALSE)
+```
+
+# Methods
+
+## Data Analytic Strategy
+
+Models were run on an NVIDIA GeForce RTX 3090. <!--lets talk about what this is and if its important to include. If we keep it maybe add a sentence about why it was important to the analyses.-->
+
+<!--Should we include a sentence saying models were trained and evaluated using Python (Version #) and list any major packages used?-->
+
+### Model Architecture
+
+We formulate the survey design problem as offline reinforcement learning (RL). Specifically, we model the interaction with each participant as an episode. Our goal is to design a survey plan that maximizes the expected cumulative rewards (and minimize penalties) over all participants during the entire episodes. That is, we consider each participant as a new environment instantiated out of $N$ environments; each environment is simulated based on the offline survey data collected in.
+
+In each episode with a participant, at each $t^{th}$ time-step, we either ask (1) whether or not to reveal the survey, or (2) to predict the next 24-hour window lapse. When we get the next survey $X_t$ from the participant (the former), we choose a binary action at deciding whether to reveal the survey or not; that is, we do not observe the survey ot = 0 without penalty if at = 0, and observe the received survey ot = Xt if at = 1, with a penalty depending on penalty levels. This penalty level is a control factor that balances the survey frequency and the prediction accuracy. If the environment asks to predict the next 24-hour window lapse event yt (the latter), an agent does not get any observation, only getting a hidden reward/penalty depending on whether the prediction is correct. <!--finish updating math syntax - see https://qmd4sci.njtierney.com/math.html-->
+
+More specifically, our training pipeline can be described as consisting of three networks (summarizer network, policy network, prediction network; @fig-method).
+
+```{r}
+#| label: fig-method
+#| fig-cap: "Architecture for two-phase training."
+#| fig-width: 6
+#| fig-height: 3
+#| echo: false 
+
+knitr::include_graphics(path = here::here("figures/methods.png"), error = FALSE)
+```
+
+#### 1. Summarizer Network
+
+<!--I'm not sure what a summarizer network is. Maybe explain it in a few sentences.-->
+Our default configuration employs transformer architectures for the summarizing model. For implementing the transformer model, we adhere to the minimal implementation of NanoGPT’s standard framework1. We use an Embedding layer for discrete actions. For the policy network, we employ the soft actor-critic method for discrete actions (SACD). We use the base two-layer fully-connected architecture for both actor and critic networks. The lapse prediction network uses a single Gated Recurrent Unit (GRU) network. <!--Move this to prediction network section?-->
+
+#### 2. Policy Network
+
+In this phase, the goal is to learn a survey policy that maximizes the cumulative returns – the sum of all rewards and penalties – averaged over all participants. The policy takes all 25 k-step previous observations, which we call a historical context or simply history, and decides an action to take. We let k = 25 in our experiments. 
+
+New trajectories are generated with φ and the current policy π, which takes a summary statistics φ(ht) as an input and outputs the next action. π is updated to maximize the long-term returns of the system. <!--update math notation-->
+
+<!--Does this make sense to put here?--> We considered four penalty levels (LV) that penalized the model for each survey observation shown: -.02, -.05, -.08, and -.12. Models also learned from penalties and rewards related to the accuracy of their predicted lapses. Models were rewarded .05 or .03 for correctly labeling a lapse or no lapse, respectively. Models were penalized -.2 or -1.2 for incorrectly labeling a lapse or no lapse, respectively. <!--How did you arrive at these reward/penalty values? Were they randomly selected?-->
+
+<!--Add Partially Observed Markov Decision Processes and Objective Formulation and Algorithm 1 here?-->
+
+#### 3. Prediction Network
+
+Predictions were made into 24-hour windows (i.e., the probability of a lapse in the next 24 hours). The first prediction window for each participant started 24 hours from midnight on their study start date. Subsequent prediction window start times for each participant repeatedly rolled forward hour-by-hour until the end of their study participation.
+
+The start and end date/time of past drinking episodes were reported on the first EMA item. A prediction window was labeled lapse if the start date/hour of any drinking episode fell within that window. A window was labeled no lapse if no alcohol use occurred within that window +/- 24 hours. If no alcohol use occurred within the window but did occur within 24 hours of the start or end of the window, the window was excluded. We ended up with a total of 274,179 labels.
+
+We used 3 repeats of 10-fold cross-validation to evaluate our models with auROC. auROC indexes the probability that the model will predict a higher score for a randomly selected positive case (lapse) relative to a randomly selected negative case (no lapse). We used grouped cross-validation to assign all data from a participant as either held-in or held-out to avoid bias introduced when predicting a participant’s data from their own data. 
+
+The truncated k-step history ht = (ot−k, at−k, ..., ot) is input into the history summarization model φ(·), yielding summary statistics φ(ht). Then, this summary statistics is fed into the prediction network to predict the next lapse label. The sequence model φ is updated to minimize the prediction loss in this phase. <!--Need to update mathematical notation-->
+
+### Model Evaluation
+
+#### Bayesian Model
+
+We used a Bayesian hierarchical generalized linear model to estimate the posterior probability distributions and 95% Bayesian credible intervals (CIs) from the 30 held-out test sets for our five best models (no penalty, Lv1, Lv2, Lv3, and Lv4). We used the default weakly informative priors. We set two random intercepts to account for our resampling method: one for the repeat, and another for the fold nested within repeat.  
+
+From the Bayesian model we obtained the posterior distribution (transformed back from logit) and Bayeisan CIs for auROCs all five models. To evaluate our models’ overall performance we report the median posterior probability for auROC and Bayesian CIs. This represents our best estimate for the magnitude of the auROC parameter for each model. 
+
+We then conducted Bayesian model comparisons to determine the probability that the penalized models’ performances differed systematically from the full model. We also report the precise posterior probability for the difference in auROCs and the 95% Bayesian CIs for these comparisons.
+
+## Results
+
+*For now I am just keeping this short and to the point since we don't know what the final results are yet that we are going to write up. Feel free to edit or add anything.*
+
+
+### Sampling Frequency
+
+*Kendra will add results here.*
+
+### Model Evaluation
+
+Median auROCs for the XGBoost and 5 neural network models are presented in the table below. <!--We won't include XGBoost in manuscript, just keeping here for now for us.-->
+```{r}
+#| echo: false
+
+aucs |> 
+  group_by(n_repeat) |> 
+  summarise(across(xgboost:nn_lv4, ~median(.x))) |> 
+  ungroup() |> 
+  summarise(across(xgboost:nn_lv4, ~median(.x))) |> 
+  glimpse()
+```
+
+Median posterior probabilities and 95% Bayesian credible intervals for auROC for the XGBoost and 5 neural network models are presented in the table below.
+```{r}
+#| echo: false
+
+pp_tibble |> 
+  kableExtra::kbl(digits = 3)
+```
+
+Histograms of posterior probabilities for auROC for the 5 neural network models are presented below.  
+```{r}
+#| echo: false
+
+posteriors |> 
+  filter(model != "xgboost") |> 
+  mutate(model = factor(model, 
+                        levels = c("nn_full", "nn_lv1", "nn_lv2", 
+                                   "nn_lv3", "nn_lv4"))) |>
+  ggplot() + 
+  geom_histogram(aes(x = posterior), fill = "light grey", color = "black", 
+                 bins = 30) +
+  geom_segment(mapping = aes(y = 3000, yend = 3600, x = pp_median, 
+                             xend = pp_median),
+               data = subset(pp_tibble, model != "xgboost")) +
+  geom_segment(mapping = aes(y = 3400, yend = 3400, x = pp_lower, xend = pp_upper),
+                data = subset(pp_tibble, model != "xgboost")) +
+  facet_wrap(~model, ncol = 1) +
+  ylab("Posterior Probability Frequency") +
+  xlab("Area Under ROC Curve") +
+  theme_classic() 
+```
+
+
+### Model Comparisons
+
+*Kendra will add a description of the model comparisons below once I see how we are referring to the different models. Essentially these comparisons suggest that we can go down to using about 40% of surveys (LV1) without any difference in model performance. It appears that the model does perform differently when going down to 25% of surveys (LV2) but this is not likely a clinically meaningful drop in performance. LV3 performs worse than LV1, but again it is not likely a clinically meaningful drop.*
+
+```{r}
+#| echo: false
+
+contrasts |> 
+  kableExtra::kbl(digits = 3)
+```
+
