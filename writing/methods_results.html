@@ -7,9 +7,9 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
 <meta name="author" content="Kendra Wyant and Jeongyeol Kwon">
-<meta name="dcterms.date" content="2025-02-17">
+<meta name="dcterms.date" content="2025-02-23">
 
-<title>Methods and Results</title>
+<title>Manuscript</title>
 <style>
 code{white-space: pre-wrap;}
 span.smallcaps{font-variant: small-caps;}
@@ -21,7 +21,27 @@ ul.task-list li input[type="checkbox"] {
 width: 0.8em;
 margin: 0 0.8em 0.2em -1em;  vertical-align: middle;
 }
-</style>
+
+div.csl-bib-body { }
+div.csl-entry {
+clear: both;
+margin-bottom: 0em;
+}
+.hanging-indent div.csl-entry {
+margin-left:2em;
+text-indent:-2em;
+}
+div.csl-left-margin {
+min-width:2em;
+float:left;
+}
+div.csl-right-inline {
+margin-left:2em;
+padding-left:1em;
+}
+div.csl-indent {
+margin-left: 2em;
+}</style>
 
 
 <script>/*!
@@ -3420,7 +3440,7 @@ window.Quarto = {
 
 <header id="title-block-header" class="quarto-title-block default">
 <div class="quarto-title">
-<h1 class="title">Methods and Results</h1>
+<h1 class="title">Manuscript</h1>
 </div>
 
 
@@ -3437,7 +3457,7 @@ window.Quarto = {
     <div>
     <div class="quarto-title-meta-heading">Published</div>
     <div class="quarto-title-meta-contents">
-      <p class="date">February 17, 2025</p>
+      <p class="date">February 23, 2025</p>
     </div>
   </div>
   
@@ -3449,6 +3469,20 @@ window.Quarto = {
 </header>
 
 
+<section id="introduction" class="level1">
+<h1>Introduction</h1>
+<p>Personal sensing is the collection and analyses of data collected via smartphone and other digital devices in the context of one’s day-to-day life <span class="citation" data-cites="mohrPersonalSensingUnderstanding2017">(<a href="#ref-mohrPersonalSensingUnderstanding2017" role="doc-biblioref">Mohr, Zhang, and Schueller 2017</a>)</span>.</p>
+<p>Personal sensing data can be used as inputs into machine learning algorithms to predict important psychological clinical outcomes. Existing literature suggests behavior (substance use <span class="citation" data-cites="wyantMachineLearningModels2024 wyantLaggedPredictionsNextinprep chihPredictiveModelingAddiction2014 businelleUsingIntensiveLongitudinal2016 hebertPredictingFirstSmoking2021 baeMobilePhoneSensors2018 waltersUsingMachineLearning2021 robertsUsingMachineLearning2022 baeLeveragingMobilePhone2023">(<a href="#ref-wyantMachineLearningModels2024" role="doc-biblioref">Wyant et al. 2024</a>, <a href="#ref-wyantLaggedPredictionsNextinprep" role="doc-biblioref">in prep</a>; <a href="#ref-chihPredictiveModelingAddiction2014" role="doc-biblioref">Chih et al. 2014</a>; <a href="#ref-businelleUsingIntensiveLongitudinal2016" role="doc-biblioref">Businelle et al. 2016</a>; <a href="#ref-hebertPredictingFirstSmoking2021" role="doc-biblioref">Hébert et al. 2021</a>; <a href="#ref-baeMobilePhoneSensors2018" role="doc-biblioref">S. Bae et al. 2018</a>; <a href="#ref-waltersUsingMachineLearning2021" role="doc-biblioref">Walters et al. 2021</a>; <a href="#ref-robertsUsingMachineLearning2022" role="doc-biblioref">Roberts et al. 2022</a>; <a href="#ref-baeLeveragingMobilePhone2023" role="doc-biblioref">S. W. Bae et al. 2023</a>)</span>), mood (depression <span class="citation" data-cites="jacobsonPassiveSensingPrediction2020 kimDepressionPredictionUsing2019 razaviDepressionScreeningUsing2020">(<a href="#ref-jacobsonPassiveSensingPrediction2020" role="doc-biblioref">Jacobson and Chung 2020</a>; <a href="#ref-kimDepressionPredictionUsing2019" role="doc-biblioref">Kim et al. 2019</a>; <a href="#ref-razaviDepressionScreeningUsing2020" role="doc-biblioref">Razavi, Gharipour, and Gharipour 2020</a>)</span>; anxiety <span class="citation" data-cites="jacobsonDigitalBiomarkersAnxiety2022">(<a href="#ref-jacobsonDigitalBiomarkersAnxiety2022" role="doc-biblioref">Jacobson and Bhattacharya 2022</a>)</span>), cognitive processes (craving <span class="citation" data-cites="epsteinPredictionStressDrug2020 dumortierClassifyingSmokingUrges2016">(<a href="#ref-epsteinPredictionStressDrug2020" role="doc-biblioref">Epstein et al. 2020</a>; <a href="#ref-dumortierClassifyingSmokingUrges2016" role="doc-biblioref">Dumortier et al. 2016</a>)</span>; suicidal thoughts <span class="citation" data-cites="czyzPredictingShorttermSuicidal2023">(<a href="#ref-czyzPredictingShorttermSuicidal2023" role="doc-biblioref">Czyz et al. 2023</a>)</span>), and even future mental health diagnoses (<span class="citation" data-cites="horwitzIntensiveLongitudinalAssessment2024">Horwitz et al. (<a href="#ref-horwitzIntensiveLongitudinalAssessment2024" role="doc-biblioref">2024</a>)</span>) can be predicted with high accuracy and temporal precision from personal sensing data.</p>
+<p>Many mental health disorders, like substance use disorders, depression, and schizophrenia, are chronic conditions. After initial treatment and symptom reduction, individuals must continue to monitor their symptoms. Machine learning models can help individuals self-monitor their risk for risk for symptom-relapse and provide information about the top features contributing to their risk.</p>
+<p>The existing successful prediction models have almost exclusively relied on ecological momentary assessment (EMA) as the primary personal sensing data collection method. EMA is…</p>
+<p>EMA offers insight into known risk-relevant feelings, thoughts and behaviors. As such it is not surprising that it has been demonstrated to be highly predictive of lapse.</p>
+<p>EMA items are also often easily mapped on to support recommendations and targets for interventions. For example, in the relapse prevention model there are established tools and clinical recommendations for coping with strong cravings, stressful situations, and risky situations.</p>
+<p>Typically these models rely on densely sampled EMA (e.g. 4 times daily). While it appears frequent EMA sampling can be sustainable for discrete sampling periods (e.g. 1-3 months) <span class="citation" data-cites="wyantAcceptabilityPersonalSensing2023 jonesComplianceEcologicalMomentary2019">(<a href="#ref-wyantAcceptabilityPersonalSensing2023" role="doc-biblioref">Wyant et al. 2023</a>; <a href="#ref-jonesComplianceEcologicalMomentary2019" role="doc-biblioref">Jones et al. 2019</a>)</span>. It is less clear whether such sampling rates can be maintained indefinitely (as is the case for lapse monitoring, where a lapse can occur at any point in one’s recovery and recovery is considered to be a dynamic and long term path).</p>
+<p>For example, frequent prompts each day could become burdensome and engagement becomes sparse. Similarly individuals could become bored with the repetitive nature of questions leading to careless or automatic responding.</p>
+<p><span class="citation" data-cites="wyantMachineLearningModels2024">Wyant et al. (<a href="#ref-wyantMachineLearningModels2024" role="doc-biblioref">2024</a>)</span> have developed a machine learning model that can predict alcohol lapse risk using 4x daily EMA.</p>
+<p>We seek to apply a precision medicine approach to EMA sampling so that individuals are only prompted to complete an EMA analysis when the information is needed to for accurate lapse predictions.</p>
+<p>Specifically we ran a stimulation study that…</p>
+</section>
 <section id="methods" class="level1">
 <h1>Methods</h1>
 <section id="data-analytic-strategy" class="level2">
@@ -3507,10 +3541,14 @@ Figure 1: Architecture for two-phase training.
 </section>
 <section id="results" class="level2">
 <h2 class="anchored" data-anchor-id="results">Results</h2>
-<p><em>For now I am just keeping this short and to the point since we don’t know what the final results are yet that we are going to write up. Feel free to edit or add anything.</em></p>
+<section id="participants" class="level3">
+<h3 class="anchored" data-anchor-id="participants">Participants</h3>
+</section>
+<section id="ema-compliance" class="level3">
+<h3 class="anchored" data-anchor-id="ema-compliance">EMA Compliance</h3>
+</section>
 <section id="sampling-frequency" class="level3">
 <h3 class="anchored" data-anchor-id="sampling-frequency">Sampling Frequency</h3>
-<p><em>Kendra will add results here.</em></p>
 </section>
 <section id="model-evaluation-1" class="level3">
 <h3 class="anchored" data-anchor-id="model-evaluation-1">Model Evaluation</h3>
@@ -3648,11 +3686,73 @@ $ nn_lv4  &lt;dbl&gt; 0.775</code></pre>
 
 </div>
 </div>
+
 </section>
 </section>
 </section>
 
-</main>
+<div id="quarto-appendix" class="default"><section class="quarto-appendix-contents" role="doc-bibliography" id="quarto-bibliography"><h2 class="anchored quarto-appendix-heading">References</h2><div id="refs" class="references csl-bib-body hanging-indent" data-entry-spacing="0" role="list">
+<div id="ref-baeLeveragingMobilePhone2023" class="csl-entry" role="listitem">
+Bae, Sang Won, Brian Suffoletto, Tongze Zhang, Tammy Chung, Melik Ozolcer, Mohammad Rahul Islam, and Anind Dey. 2023. <span>“Leveraging <span>Mobile Phone Sensors</span>, <span>Machine Learning</span> and <span>Explainable Artificial Intelligence</span> to <span>Predict Imminent Same-Day Binge Drinking Events</span> to <span>Support Just-In-Time Adaptive Interventions</span>: <span>A Feasibility Study</span>.”</span> <em>JMIR Formative Research</em>, February. <a href="https://doi.org/10.2196/39862">https://doi.org/10.2196/39862</a>.
+</div>
+<div id="ref-baeMobilePhoneSensors2018" class="csl-entry" role="listitem">
+Bae, Sangwon, Tammy Chung, Denzil Ferreira, Anind K. Dey, and Brian Suffoletto. 2018. <span>“Mobile Phone Sensors and Supervised Machine Learning to Identify Alcohol Use Events in Young Adults: <span>Implications</span> for Just-in-Time Adaptive Interventions.”</span> <em>Addictive Behaviors</em> 83 (August): 42–47. <a href="https://doi.org/10.1016/j.addbeh.2017.11.039">https://doi.org/10.1016/j.addbeh.2017.11.039</a>.
+</div>
+<div id="ref-businelleUsingIntensiveLongitudinal2016" class="csl-entry" role="listitem">
+Businelle, Michael S, Ping Ma, Darla E Kendzor, Summer G Frank, David W Wetter, and Damon J Vidrine. 2016. <span>“Using <span>Intensive Longitudinal Data Collected</span> via <span>Mobile Phone</span> to <span>Detect Imminent Lapse</span> in <span>Smokers Undergoing</span> a <span>Scheduled Quit Attempt</span>.”</span> <em>Journal of Medical Internet Research</em> 18 (10): e275. <a href="https://doi.org/10/f9bvfc">https://doi.org/10/f9bvfc</a>.
+</div>
+<div id="ref-chihPredictiveModelingAddiction2014" class="csl-entry" role="listitem">
+Chih, Ming-Yuan, Timothy Patton, Fiona M. McTavish, Andrew J. Isham, Chris L. Judkins-Fisher, Amy K. Atwood, and David H. Gustafson. 2014. <span>“Predictive Modeling of Addiction Lapses in a Mobile Health Application.”</span> <em>Journal of Substance Abuse Treatment</em> 46 (1): 29–35. <a href="https://doi.org/10.1016/j.jsat.2013.08.004">https://doi.org/10.1016/j.jsat.2013.08.004</a>.
+</div>
+<div id="ref-czyzPredictingShorttermSuicidal2023" class="csl-entry" role="listitem">
+Czyz, E. K., H. J. Koo, N. Al-Dajani, C. A. King, and I. Nahum-Shani. 2023. <span>“Predicting Short-Term Suicidal Thoughts in Adolescents Using Machine Learning: Developing Decision Tools to Identify Daily Level Risk After Hospitalization.”</span> <em>Psychological Medicine</em> 53 (7): 2982–91. <a href="https://doi.org/10.1017/S0033291721005006">https://doi.org/10.1017/S0033291721005006</a>.
+</div>
+<div id="ref-dumortierClassifyingSmokingUrges2016" class="csl-entry" role="listitem">
+Dumortier, Antoine, Ellen Beckjord, Saul Shiffman, and Ervin Sejdić. 2016. <span>“Classifying Smoking Urges via Machine Learning.”</span> <em>Computer Methods and Programs in Biomedicine</em> 137 (December): 203–13. <a href="https://doi.org/10.1016/j.cmpb.2016.09.016">https://doi.org/10.1016/j.cmpb.2016.09.016</a>.
+</div>
+<div id="ref-epsteinPredictionStressDrug2020" class="csl-entry" role="listitem">
+Epstein, David H., Matthew Tyburski, William J. Kowalczyk, Albert J. Burgess-Hull, Karran A. Phillips, Brenda L. Curtis, and Kenzie L. Preston. 2020. <span>“Prediction of Stress and Drug Craving Ninety Minutes in the Future with Passively Collected <span>GPS</span> Data.”</span> <em>Npj Digital Medicine</em> 3 (1): 26. <a href="https://doi.org/10/ghqvcw">https://doi.org/10/ghqvcw</a>.
+</div>
+<div id="ref-hebertPredictingFirstSmoking2021" class="csl-entry" role="listitem">
+Hébert, Emily T., Robert Suchting, Chaelin K. Ra, Adam C. Alexander, Darla E. Kendzor, Damon J. Vidrine, and Michael S. Businelle. 2021. <span>“Predicting the First Smoking Lapse During a Quit Attempt: <span>A</span> Machine Learning Approach.”</span> <em>Drug and Alcohol Dependence</em> 218 (January): 108340. <a href="https://doi.org/10.1016/j.drugalcdep.2020.108340">https://doi.org/10.1016/j.drugalcdep.2020.108340</a>.
+</div>
+<div id="ref-horwitzIntensiveLongitudinalAssessment2024" class="csl-entry" role="listitem">
+Horwitz, Adam, Kaitlyn McCarthy, Stacey L. House, Francesca L. Beaudoin, Xinming An, Thomas C. Neylan, Gari D. Clifford, et al. 2024. <span>“Intensive Longitudinal Assessment Following Index Trauma to Predict Development of <span>PTSD</span> Using Machine Learning.”</span> <em>Journal of Anxiety Disorders</em> 104 (June): 102876. <a href="https://doi.org/10.1016/j.janxdis.2024.102876">https://doi.org/10.1016/j.janxdis.2024.102876</a>.
+</div>
+<div id="ref-jacobsonDigitalBiomarkersAnxiety2022" class="csl-entry" role="listitem">
+Jacobson, Nicholas C., and Sukanya Bhattacharya. 2022. <span>“Digital Biomarkers of Anxiety Disorder Symptom Changes: <span>Personalized</span> Deep Learning Models Using Smartphone Sensors Accurately Predict Anxiety Symptoms from Ecological Momentary Assessments.”</span> <em>Behaviour Research and Therapy</em> 149 (February): 104013. <a href="https://doi.org/10.1016/j.brat.2021.104013">https://doi.org/10.1016/j.brat.2021.104013</a>.
+</div>
+<div id="ref-jacobsonPassiveSensingPrediction2020" class="csl-entry" role="listitem">
+Jacobson, Nicholas C., and Yeon Joo Chung. 2020. <span>“Passive <span>Sensing</span> of <span>Prediction</span> of <span>Moment-To-Moment Depressed Mood</span> Among <span>Undergraduates</span> with <span>Clinical Levels</span> of <span>Depression Sample Using Smartphones</span>.”</span> <em>Sensors</em> 20 (12): 3572. <a href="https://doi.org/10.3390/s20123572">https://doi.org/10.3390/s20123572</a>.
+</div>
+<div id="ref-jonesComplianceEcologicalMomentary2019" class="csl-entry" role="listitem">
+Jones, Andrew, Danielle Remmerswaal, Ilse Verveer, Eric Robinson, Ingmar H. A. Franken, Cheng K. Fred Wen, and Matt Field. 2019. <span>“Compliance with Ecological Momentary Assessment Protocols in Substance Users: A Meta-Analysis.”</span> <em>Addiction (Abingdon, England)</em> 114 (4): 609–19. <a href="https://doi.org/10/gfsjzg">https://doi.org/10/gfsjzg</a>.
+</div>
+<div id="ref-kimDepressionPredictionUsing2019" class="csl-entry" role="listitem">
+Kim, Heejung, SungHee Lee, SangEun Lee, Soyun Hong, HeeJae Kang, and Namhee Kim. 2019. <span>“Depression <span>Prediction</span> by <span>Using Ecological Momentary Assessment</span>, <span>Actiwatch Data</span>, and <span>Machine Learning</span>: <span>Observational Study</span> on <span>Older Adults Living Alone</span>.”</span> <em>JMIR mHealth and uHealth</em> 7 (10): e14149. <a href="https://doi.org/10.2196/14149">https://doi.org/10.2196/14149</a>.
+</div>
+<div id="ref-mohrPersonalSensingUnderstanding2017" class="csl-entry" role="listitem">
+Mohr, David C., Mi Zhang, and Stephen M. Schueller. 2017. <span>“Personal <span>Sensing</span>: <span>Understanding Mental Health Using Ubiquitous Sensors</span> and <span>Machine Learning</span>.”</span> <em>Annual Review of Clinical Psychology</em> 13 (1): 23–47. <a href="https://doi.org/10.1146/annurev-clinpsy-032816-044949">https://doi.org/10.1146/annurev-clinpsy-032816-044949</a>.
+</div>
+<div id="ref-razaviDepressionScreeningUsing2020" class="csl-entry" role="listitem">
+Razavi, Rouzbeh, Amin Gharipour, and Mojgan Gharipour. 2020. <span>“Depression Screening Using Mobile Phone Usage Metadata: A Machine Learning Approach.”</span> <em>Journal of the American Medical Informatics Association</em> 27 (4): 522–30. <a href="https://doi.org/10.1093/jamia/ocz221">https://doi.org/10.1093/jamia/ocz221</a>.
+</div>
+<div id="ref-robertsUsingMachineLearning2022" class="csl-entry" role="listitem">
+Roberts, Walter, Yize Zhao, Terril Verplaetse, Kelly E. Moore, MacKenzie R. Peltier, Catherine Burke, Yasmin Zakiniaeiz, and Sherry McKee. 2022. <span>“Using Machine Learning to Predict Heavy Drinking During Outpatient Alcohol Treatment.”</span> <em>Alcohol: Clinical and Experimental Research</em> 46 (4): 657–66. <a href="https://doi.org/10.1111/acer.14802">https://doi.org/10.1111/acer.14802</a>.
+</div>
+<div id="ref-waltersUsingMachineLearning2021" class="csl-entry" role="listitem">
+Walters, Scott T., Michael S. Businelle, Robert Suchting, Xiaoyin Li, Emily T. Hébert, and Eun-Young Mun. 2021. <span>“Using Machine Learning to Identify Predictors of Imminent Drinking and Create Tailored Messages for at-Risk Drinkers Experiencing Homelessness.”</span> <em>Journal of Substance Abuse Treatment</em> 127 (August): 108417. <a href="https://doi.org/10.1016/j.jsat.2021.108417">https://doi.org/10.1016/j.jsat.2021.108417</a>.
+</div>
+<div id="ref-wyantLaggedPredictionsNextinprep" class="csl-entry" role="listitem">
+Wyant, Kendra, Gaylen Fronk, Jiachen Yu, and John Curtin. in prep. <span>“Lagged <span>Predictions</span> of <span>Next Day Alcohol Use</span> for <span>Adaptive</span> and <span>Personalized Continuing Care</span>,”</span> in prep.
+</div>
+<div id="ref-wyantAcceptabilityPersonalSensing2023" class="csl-entry" role="listitem">
+Wyant, Kendra, Hannah Moshontz, Stephanie B. Ward, Gaylen E. Fronk, and John J. Curtin. 2023. <span>“Acceptability of <span>Personal Sensing Among People With Alcohol Use Disorder</span>: <span>Observational Study</span>.”</span> <em>JMIR mHealth and uHealth</em> 11 (1): e41833. <a href="https://doi.org/10.2196/41833">https://doi.org/10.2196/41833</a>.
+</div>
+<div id="ref-wyantMachineLearningModels2024" class="csl-entry" role="listitem">
+Wyant, Kendra, Sarah J. Sant’Ana, Gaylen E. Fronk, and John J. Curtin. 2024. <span>“Machine Learning Models for Temporally Precise Lapse Prediction in Alcohol Use Disorder.”</span> <em>Journal of Psychopathology and Clinical Science</em> 133 (7): 527–40. <a href="https://doi.org/10.1037/abn0000901">https://doi.org/10.1037/abn0000901</a>.
+</div>
+</div></section></div></main>
 <!-- /main column -->
 <script id="quarto-html-after-body" type="application/javascript">
 window.document.addEventListener("DOMContentLoaded", function (event) {

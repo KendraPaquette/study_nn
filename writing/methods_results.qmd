@@ -35,35 +35,24 @@ contrasts <- read_csv(here("data/contrast.csv"),
 
 # Introduction
 
-Personal sensing is...[@mohrPersonalSensingUnderstanding2017].
+Personal sensing is the collection and analyses of data collected via smartphone and other digital devices in the context of one's day-to-day life [@mohrPersonalSensingUnderstanding2017]. 
 
-Personal sensing data can be used as inputs into machine learning algorithms to predict important psychological clinical outcomes with high accuracy and temporal precision. 
+Personal sensing data can be used as inputs into machine learning algorithms to predict important psychological clinical outcomes. Existing literature suggests behavior (substance use [@wyantMachineLearningModels2024; @wyantLaggedPredictionsNextinprep; @chihPredictiveModelingAddiction2014; @businelleUsingIntensiveLongitudinal2016; @hebertPredictingFirstSmoking2021; @baeMobilePhoneSensors2018; @waltersUsingMachineLearning2021; @robertsUsingMachineLearning2022; @baeLeveragingMobilePhone2023]), mood (depression [@jacobsonPassiveSensingPrediction2020; @kimDepressionPredictionUsing2019; @razaviDepressionScreeningUsing2020]; anxiety [@jacobsonDigitalBiomarkersAnxiety2022]), cognitive processes (craving [@epsteinPredictionStressDrug2020; @dumortierClassifyingSmokingUrges2016]; suicidal thoughts [@czyzPredictingShorttermSuicidal2023]), and even future mental health diagnoses (@horwitzIntensiveLongitudinalAssessment2024) can be predicted with high accuracy and temporal precision from personal sensing data. 
 
-Citations:
+Many mental health disorders, like substance use disorders, depression, and schizophrenia, are chronic conditions. After initial treatment and symptom reduction, individuals must continue to monitor their symptoms. 
+Machine learning models can help individuals self-monitor their risk for risk for symptom-relapse and provide information about the top features contributing to their risk.
 
-    - alcohol lapse [@wyantMachineLearningModels2024;@wyantLaggedPredictionsNextinprep; @chihPredictiveModelingAddiction2014]
-    - smoking lapse [@businelleUsingIntensiveLongitudinal2016; @hebertPredictingFirstSmoking2021]
-    - drug craving [@epsteinPredictionStressDrug2020; @dumortierClassifyingSmokingUrges2016]
-    - drinking events [@baeMobilePhoneSensors2018; @waltersUsingMachineLearning2021]
-    - heavy drinking episodes[@robertsUsingMachineLearning2022; @baeLeveragingMobilePhone2023]
-
-    - depressed mood [@jacobsonPassiveSensingPrediction2020; @kimDepressionPredictionUsing2019; @razaviDepressionScreeningUsing2020]
-    - suicidal thoughts [@czyzPredictingShorttermSuicidal2023]
-    - Future PTSD diagnosis [@horwitzIntensiveLongitudinalAssessment2024]
-
-For chronic mental health conditions, such as substance use disorders and depression, individuals will need to continue to monitor their risk of symptom reoccurence. Machine learning models that use personal sensing data can be used to predict symptom reoccurence before they occur and make recommendations to individuals based on the top features contributing to that risk.
-
-<!--Switch to only focussing on substance use disorders here?-->
-
-Example of support and risk monitoring system for substance use disorders.
-
-The existing successful lapse prediction models have almost exclusively relied on ecological momentary assessment (EMA) as the primary personal sensing data collection method. EMA is...
+The existing successful prediction models have almost exclusively relied on ecological momentary assessment (EMA) as the primary personal sensing data collection method. EMA is...
 
 EMA offers insight into known risk-relevant feelings, thoughts and behaviors. As such it is not surprising that it has been demonstrated to be highly predictive of lapse. 
+
+EMA items are also often easily mapped on to support recommendations and targets for interventions. For example, in the relapse prevention model there are established tools and clinical recommendations for coping with strong cravings, stressful situations, and risky situations.
 
 Typically these models rely on densely sampled EMA (e.g. 4 times daily). While it appears frequent EMA sampling can be sustainable for discrete sampling periods (e.g. 1-3 months) [@wyantAcceptabilityPersonalSensing2023; @jonesComplianceEcologicalMomentary2019]. It is less clear whether such sampling rates can be maintained indefinitely (as is the case for lapse monitoring, where a lapse can occur at any point in one’s recovery and recovery is considered to be a dynamic and long term path). 
 
 For example, frequent prompts each day could become burdensome and engagement becomes sparse. Similarly individuals could become bored with the repetitive nature of questions leading to careless or automatic responding. 
+
+@wyantMachineLearningModels2024 have developed a machine learning model that can predict alcohol lapse risk using 4x daily EMA. 
 
 We seek to apply a precision medicine approach to EMA sampling so that individuals are only prompted to complete an EMA analysis when the information is needed to for accurate lapse predictions. 
 
