@@ -1,7 +1,8 @@
 ---
-title: "Methods and Results"
+title: "Manuscript"
 author: "Kendra Wyant and Jeongyeol Kwon"
 date: "`r lubridate::today()`"
+bibliography: references.bib
 output: 
   html_document:
     toc: true 
@@ -31,6 +32,46 @@ pp_tibble <- read_csv(here("data/pp_perf_tibble.csv"),
 contrasts <- read_csv(here("data/contrast.csv"),
                       show_col_types = FALSE)
 ```
+
+# Introduction
+
+Personal sensing is...[@mohrPersonalSensingUnderstanding2017].
+
+Personal sensing data can be used as inputs into machine learning algorithms to predict important psychological clinical outcomes with high accuracy and temporal precision. 
+
+Citations:
+
+    - alcohol lapse [@wyantMachineLearningModels2024;@wyantLaggedPredictionsNextinprep; @chihPredictiveModelingAddiction2014]
+    - smoking lapse [@businelleUsingIntensiveLongitudinal2016; @hebertPredictingFirstSmoking2021]
+    - drug craving [@epsteinPredictionStressDrug2020; @dumortierClassifyingSmokingUrges2016]
+    - drinking events [@baeMobilePhoneSensors2018; @waltersUsingMachineLearning2021]
+    - heavy drinking episodes[@robertsUsingMachineLearning2022; @baeLeveragingMobilePhone2023]
+
+    - depressed mood [@jacobsonPassiveSensingPrediction2020; @kimDepressionPredictionUsing2019; @razaviDepressionScreeningUsing2020]
+    - suicidal thoughts [@czyzPredictingShorttermSuicidal2023]
+    - Future PTSD diagnosis [@horwitzIntensiveLongitudinalAssessment2024]
+
+For chronic mental health conditions, such as substance use disorders and depression, individuals will need to continue to monitor their risk of symptom reoccurence. Machine learning models that use personal sensing data can be used to predict symptom reoccurence before they occur and make recommendations to individuals based on the top features contributing to that risk.
+
+<!--Switch to only focussing on substance use disorders here?-->
+
+Example of support and risk monitoring system for substance use disorders.
+
+The existing successful lapse prediction models have almost exclusively relied on ecological momentary assessment (EMA) as the primary personal sensing data collection method. EMA is...
+
+EMA offers insight into known risk-relevant feelings, thoughts and behaviors. As such it is not surprising that it has been demonstrated to be highly predictive of lapse. 
+
+Typically these models rely on densely sampled EMA (e.g. 4 times daily). While it appears frequent EMA sampling can be sustainable for discrete sampling periods (e.g. 1-3 months) [@wyantAcceptabilityPersonalSensing2023; @jonesComplianceEcologicalMomentary2019]. It is less clear whether such sampling rates can be maintained indefinitely (as is the case for lapse monitoring, where a lapse can occur at any point in one’s recovery and recovery is considered to be a dynamic and long term path). 
+
+For example, frequent prompts each day could become burdensome and engagement becomes sparse. Similarly individuals could become bored with the repetitive nature of questions leading to careless or automatic responding. 
+
+We seek to apply a precision medicine approach to EMA sampling so that individuals are only prompted to complete an EMA analysis when the information is needed to for accurate lapse predictions. 
+
+Specifically we ran a stimulation study that…
+
+
+
+
 
 # Methods
 
@@ -95,12 +136,14 @@ We then conducted Bayesian model comparisons to determine the probability that t
 
 ## Results
 
-*For now I am just keeping this short and to the point since we don't know what the final results are yet that we are going to write up. Feel free to edit or add anything.*
+### Participants
+
+
+### EMA Compliance
 
 
 ### Sampling Frequency
 
-*Kendra will add results here.*
 
 ### Model Evaluation
 
