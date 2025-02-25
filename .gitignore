@@ -1,4 +1,6 @@
-.Rproj.user
-.Rhistory
-.RData
-.Ruserdata
+./code/.ipynb_checkpoints
+*.pyc
+./code/freq_results
+./code/results
+*.out
+*.csv
