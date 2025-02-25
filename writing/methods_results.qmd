@@ -23,6 +23,8 @@ editor_options:
 library(tidyverse)
 library(here)
 
+theme_set(theme_classic())
+
 aucs <- read_csv(here("data/auc_3_x_10.csv"),
                  show_col_types = FALSE)
 posteriors <- read_csv(here("data/posteriors.csv"),
@@ -31,7 +33,13 @@ pp_tibble <- read_csv(here("data/pp_perf_tibble.csv"),
                        show_col_types = FALSE)
 contrasts <- read_csv(here("data/contrast.csv"),
                       show_col_types = FALSE)
+freq <- read_csv(here("data/freq.csv"),
+                      show_col_types = FALSE) 
+lapses <- read_csv(here("data/lapses.csv"),
+                      show_col_types = FALSE)
 ```
+
+
 
 # Introduction
 
@@ -132,6 +140,44 @@ We then conducted Bayesian model comparisons to determine the probability that t
 
 
 ### Sampling Frequency
+
+```{r}
+freq |> 
+  group_by(model) |> 
+  summarise(median = median(prop), 
+            min = min(prop),
+            max = max(prop))
+```
+
+<!-- note these plots depict 3 proportions for each subid - 1 for each repeat-->
+```{r}
+freq |> 
+  filter(model != "full") |> 
+  ggplot(aes(x = prop)) +
+  geom_histogram(color = "black", fill = "light grey", bins = 40) +
+  facet_wrap(~model) +
+  geom_vline(aes(xintercept = med), freq |> 
+               filter(model != "full") |> 
+               group_by(model) |> 
+               mutate(med = median(prop))) +
+  labs(title = "Histogram of proportion of surveys used by subid for each penalty",
+       x = "proportion of surveys completed")
+```
+
+Plot below is not right because id in model output does not much subid so cant match to days on study.
+```{r}
+freq |>
+  filter(model != "full") |> 
+  left_join(lapses, by = "subid") |> 
+  ggplot(aes(x = prop, y = prop_lapse_days), alpha = .4) +
+  geom_point() +
+  facet_wrap(~model) +
+  labs(title = "Relationship between lapses and survey frequency",
+       x = "proportion of surveys completed",
+       y = "proportion of study days with lapses")
+```
+
+
 
 
 ### Model Evaluation
