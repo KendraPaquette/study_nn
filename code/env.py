@@ -17,55 +17,59 @@ class Env:
         self.last_lapse = 0
         self.last_probed = 0
 
-        self.dummy_obs = self.cur_env[self.t]['obs'] * 0
+        self.dummy_obs = self.cur_env[self.t]['obs']*0
+        
         return self.dummy_obs, self.cur_env[self.t]['time']
         
     def step(self, action, probe_penalty=0.05):
         if( self.finished ):
-            return self.dummy_obs, 0, 1, -1
+            return np.concatenate([[0], self.dummy_obs]), 0, 1, -1
         
         revealed = False
         reward = 0.
         done = 0
         
         if( self.cur_env[self.t]['type'] == 'survey' ):
-            obs = self.cur_env[self.t]['obs'] + 0.0 # + 0.00 not to overload through the pointer
+            obs = self.cur_env[self.t]['obs'] 
             if( action == 0 ):
                 # doesn't reveal the survey
-                ret_obs = obs * 0
+                ret_obs = obs + 0.0   # + 0.00 not to overload through the pointer
+                ret_obs[:-1] = 0
                 # read ema = 1
                 if( obs[0] > 0 ):
                     self.hidden_lapsed = True
             
             else:
-                # reveal the survey received in-between
-                if( self.hidden_lapsed ):
-                    obs[0] = 1
-
                 self.hidden_lapsed = False
                 reward -= probe_penalty
-                ret_obs = obs
+                ret_obs = obs + 0.0
+                # reveal the survey received in-between
+                if( self.hidden_lapsed ):
+                    ret_obs[0] = 1
 
             info = 'survey'
             
         else:
             # query time: no survey
-            ret_obs = self.dummy_obs + 0.0
+            ret_obs = self.dummy_obs
             info = {'out':self.cur_env[self.t]['out'], 'feature': self.cur_env[self.t]['feature']}
             y = info['out']
-            # get reward depending on whether the guess was right
+            # get reward depending on whether the guess was right at the query point
             if( action == 0 ):
                 reward = -1.2 if ( y > 0 ) else 0.03
             else:
                 reward = -0.2 if ( y == 0 ) else 0.05
-            
+
+        ret_obs = np.concatenate([[0], ret_obs])
         self.t += 1
         if( self.t == len(self.cur_env) ):
             done = 1
             self.finished = True
+        
         else:
-            # encode whether this is query or survey in the last coordinate
-            ret_obs[-1] = 0 if(self.cur_env[self.t]['type'] == 'query') else 1
+            # encode whether this is query or survey in the first coordinate
+            if(self.cur_env[self.t]['type'] == 'query'):
+                ret_obs[0] = 1
 
         return ret_obs, reward, done, info
         
