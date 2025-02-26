@@ -224,7 +224,7 @@ Median posterior probabilities and 95% Bayesian credible intervals for auROC for
 #| echo: false
 
 pp_tibble |> 
-  kableExtra::kbl(digits = 3)
+  knitr::kable(digits = 3)
 ```
 
 Potential main figure
@@ -281,6 +281,6 @@ posteriors |>
 #| echo: false
 
 contrasts |> 
-  kableExtra::kbl(digits = 3)
+  knitr::kable(digits = 3)
 ```
 
