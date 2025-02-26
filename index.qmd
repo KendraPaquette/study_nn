@@ -1,15 +1,27 @@
 ---
-title: "Manuscript"
-author: "Kendra Wyant and Jeongyeol Kwon"
-date: "`r lubridate::today()`"
+title: Adaptive EMA Sampling for Alcohol Lapse Risk Prediction - A Reinforcement Learning Approach
+author:
+  - name: Jeongyeol Kwon 
+    corresponding: false
+    affiliations:
+      - Department of X, University of Wisconsin-Madison
+  - name: Kendra Wyant 
+    corresponding: false
+    affiliations:
+      - Department of Psychology, University of Wisconsin-Madison
+  - name: John J. Curtin 
+    corresponding: true
+    email: jjcurtin@wisc.edu
+    affiliations:
+      - Department of Psychology, University of Wisconsin-Madison 
+keywords:
+  - Substance use disorders
+  - Precision mental health 
+abstract: |
+  Abstract here.
+date: last-modified
 bibliography: references.bib
-output: 
-  html_document:
-    toc: true 
-    toc_depth: 4
-format:
-  html:
-    embed-resources: true
+number-sections: false 
 editor_options: 
   chunk_output_type: console
 ---

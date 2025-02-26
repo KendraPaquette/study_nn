@@ -1,0 +1,1020 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
+
+<meta charset="utf-8">
+<meta name="generator" content="quarto-1.6.39">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+
+<meta name="author" content="Jeongyeol Kwon">
+<meta name="author" content="Kendra Wyant">
+<meta name="author" content="John J. Curtin">
+<meta name="dcterms.date" content="2025-02-26">
+<meta name="keywords" content="Substance use disorders, Precision mental health">
+
+<title>Adaptive EMA Sampling for Alcohol Lapse Risk Prediction - A Reinforcement Learning Approach</title>
+<style>
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: min(4vw, 1.5em);}
+div.column{flex: auto; overflow-x: auto;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+  width: 0.8em;
+  margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
+  vertical-align: middle;
+}
+/* CSS for citations */
+div.csl-bib-body { }
+div.csl-entry {
+  clear: both;
+  margin-bottom: 0em;
+}
+.hanging-indent div.csl-entry {
+  margin-left:2em;
+  text-indent:-2em;
+}
+div.csl-left-margin {
+  min-width:2em;
+  float:left;
+}
+div.csl-right-inline {
+  margin-left:2em;
+  padding-left:1em;
+}
+div.csl-indent {
+  margin-left: 2em;
+}</style>
+
+
+<script src="site_libs/clipboard/clipboard.min.js"></script>
+<script src="site_libs/quarto-html/quarto.js"></script>
+<script src="site_libs/quarto-html/popper.min.js"></script>
+<script src="site_libs/quarto-html/tippy.umd.min.js"></script>
+<script src="site_libs/quarto-html/anchor.min.js"></script>
+<link href="site_libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="site_libs/quarto-html/quarto-syntax-highlighting-e26003cea8cd680ca0c55a263523d882.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<script src="site_libs/bootstrap/bootstrap.min.js"></script>
+<link href="site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="site_libs/bootstrap/bootstrap-a1ff8711b79ae3724c050874b28d9907.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
+<script src="site_libs/quarto-contrib/glightbox/glightbox.min.js"></script>
+<link href="site_libs/quarto-contrib/glightbox/glightbox.min.css" rel="stylesheet">
+<link href="site_libs/quarto-contrib/glightbox/lightbox.css" rel="stylesheet">
+<script src="site_libs/kePrint-0.0.1/kePrint.js"></script>
+
+<link href="site_libs/lightable-0.0.1/lightable.css" rel="stylesheet">
+
+
+  <script src="https://cdnjs.cloudflare.com/polyfill/v3/polyfill.min.js?features=es6"></script>
+  <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml-full.js" type="text/javascript"></script>
+
+<script type="text/javascript">
+const typesetMath = (el) => {
+  if (window.MathJax) {
+    // MathJax Typeset
+    window.MathJax.typeset([el]);
+  } else if (window.katex) {
+    // KaTeX Render
+    var mathElements = el.getElementsByClassName("math");
+    var macros = [];
+    for (var i = 0; i < mathElements.length; i++) {
+      var texText = mathElements[i].firstChild;
+      if (mathElements[i].tagName == "SPAN") {
+        window.katex.render(texText.data, mathElements[i], {
+          displayMode: mathElements[i].classList.contains('display'),
+          throwOnError: false,
+          macros: macros,
+          fleqn: false
+        });
+      }
+    }
+  }
+}
+window.Quarto = {
+  typesetMath
+};
+</script>
+
+<meta name="citation_title" content="Adaptive EMA Sampling for Alcohol Lapse Risk Prediction - A Reinforcement Learning Approach">
+<meta name="citation_abstract" content="Abstract here.
+">
+<meta name="citation_keywords" content="Substance use disorders,Precision mental health">
+<meta name="citation_author" content="Jeongyeol Kwon">
+<meta name="citation_author" content="Kendra Wyant">
+<meta name="citation_author" content="John J. Curtin">
+<meta name="citation_publication_date" content="2025-02-26">
+<meta name="citation_cover_date" content="2025-02-26">
+<meta name="citation_year" content="2025">
+<meta name="citation_online_date" content="2025-02-26">
+<meta name="citation_language" content="en">
+<meta name="citation_reference" content="citation_title=Leveraging Mobile Phone Sensors, Machine Learning and Explainable Artificial Intelligence to Predict Imminent Same-Day Binge Drinking Events to Support Just-In-Time Adaptive Interventions: A Feasibility Study;,citation_abstract=BACKGROUND: Digital Just-In-Time Adaptive Interventions (JITAIs) can reduce binge drinking events (BDEs: consuming 4+/5+ drinks per occasion for women/men) in young adults, but need to be optimized for timing and content. Delivering just-in-time support messages in the hours prior to BDEs could improve intervention impact. OBJECTIVE: We determined the feasibility of developing a machine learning model to accurately predict future, that is, same-day, 1 to 6-hours prior BDEs using smartphone sensor data. We aimed to identify the most informative phone sensor features associated with BDEs on weekend and weekdays, respectively, to determine the key features that explain prediction model performance. METHODS: We collected phone sensor data from 75 young adults (ages 21-25; mean =22.4, SD=1.9) with risky drinking behavior who reported drinking behavior over 14 weeks. Participants in this secondary analysis were enrolled in a clinical trial. We developed machine learning models testing different algorithms (e.g., XGBoost, decision tree) to predict same-day BDEs (versus low-risk drinking events and non-drinking periods) using smartphone sensor data (e.g., accelerometer, GPS). We tested various &amp;amp;amp;quot;prediction distance&amp;quot; time windows (more proximal: 1-hour; to distant: 6-hour) from drinking onset. We also tested various analysis time windows (i.e., amount of data to be analyzed), ranging from 1 to 12 hours prior to drinking onset, because this determines the amount of data that needs to be stored on the phone to compute the model. Explainable AI (XAI) was used to explore interactions between the most informative phone sensor features contributing to BDEs. RESULTS: The XGBoost model performed best in predicting imminent same-day BDE, with 95.0% accuracy on weekends and 94.3% accuracy on weekdays (F1 score = 0.95 and 0.94, respectively). This XGBoost model needed 12- and 9-hours of phone sensor data at 3- and 6- hours prediction distance from the onset of drinking, on weekends and weekdays, respectively, prior to predicting same-day BDEs. The most informative phone sensor features for BDE prediction were time (e.g., time of day) and GPS-derived, such as radius of gyration (an indicator of travel). Interactions among key features (e.g., time of day, GPS-derived features) contributed to prediction of same-day BDE. CONCLUSIONS: We demonstrated the feasibility and potential use of smartphone sensor data and machine learning to accurately predict imminent (same-day) BDEs in young adults. The prediction model provides &quot;windows of opportunity&quot; and with the adoption of XAI, we identified &quot;key contributing features&quot; to trigger JITAI prior to the onset of BDEs, with the potential to reduce the likelihood of BDEs in young adults.;,citation_author=Sang Won Bae;,citation_author=Brian Suffoletto;,citation_author=Tongze Zhang;,citation_author=Tammy Chung;,citation_author=Melik Ozolcer;,citation_author=Mohammad Rahul Islam;,citation_author=Anind Dey;,citation_publication_date=2023-02;,citation_cover_date=2023-02;,citation_year=2023;,citation_doi=10.2196/39862;,citation_issn=2561-326X;,citation_pmid=36809294;,citation_language=en-US;,citation_journal_title=JMIR formative research;">
+<meta name="citation_reference" content="citation_title=Mobile phone sensors and supervised machine learning to identify alcohol use events in young adults: Implications for just-in-time adaptive interventions;,citation_abstract=BACKGROUND: Real-time detection of drinking could improve timely delivery of interventions aimed at reducing alcohol consumption and alcohol-related injury, but existing detection methods are burdensome or impractical. OBJECTIVE: To evaluate whether phone sensor data and machine learning models are useful to detect alcohol use events, and to discuss implications of these results for just-in-time mobile interventions. METHODS: 38 non-treatment seeking young adult heavy drinkers downloaded AWARE app (which continuously collected mobile phone sensor data), and reported alcohol consumption (number of drinks, start/end time of prior day’s drinking) for 28days. We tested various machine learning models using the 20 most informative sensor features to classify time periods as non-drinking, low-risk (1 to 3/4 drinks per occasion for women/men), and high-risk drinking ($&amp;amp;amp;gt;$4/5 drinks per occasion for women/men). RESULTS: Among 30 participants in the analyses, 207 non-drinking, 41 low-risk, and 45 high-risk drinking episodes were reported. A Random Forest model using 30-min windows with 1day of historical data performed best for detecting high-risk drinking, correctly classifying high-risk drinking windows 90.9% of the time. The most informative sensor features were related to time (i.e., day of week, time of day), movement (e.g., change in activities), device usage (e.g., screen duration), and communication (e.g., call duration, typing speed). CONCLUSIONS: Preliminary evidence suggests that sensor data captured from mobile phones of young adults is useful in building accurate models to detect periods of high-risk drinking. Interventions using mobile phone sensor features could trigger delivery of a range of interventions to potentially improve effectiveness.;,citation_author=Sangwon Bae;,citation_author=Tammy Chung;,citation_author=Denzil Ferreira;,citation_author=Anind K. Dey;,citation_author=Brian Suffoletto;,citation_publication_date=2018-08;,citation_cover_date=2018-08;,citation_year=2018;,citation_doi=10.1016/j.addbeh.2017.11.039;,citation_issn=1873-6327;,citation_pmid=29217132;,citation_volume=83;,citation_language=en-US;,citation_journal_title=Addictive Behaviors;">
+<meta name="citation_reference" content="citation_title=Using Intensive Longitudinal Data Collected via Mobile Phone to Detect Imminent Lapse in Smokers Undergoing a Scheduled Quit Attempt;,citation_abstract=Background: Mobile phone based real-time ecological momentary assessments (EMAs) have been used to record health risk behaviors, and antecedents to those behaviors, as they occur in near real time. Objective: The objective of this study was to determine if intensive longitudinal data, collected via mobile phone, could be used to identify imminent risk for smoking lapse among socioeconomically disadvantaged smokers seeking smoking cessation treatment. Methods: Participants were recruited into a randomized controlled smoking cessation trial at an urban safety-net hospital tobacco cessation clinic. All participants completed in-person EMAs on mobile phones provided by the study. The presence of six commonly cited lapse risk variables (ie, urge to smoke, stress, recent alcohol consumption, interaction with someone smoking, cessation motivation, and cigarette availability) collected during 2152 prompted or self-initiated postcessation EMAs was examined to determine whether the number of lapse risk factors was greater when lapse was imminent (ie, within 4 hours) than when lapse was not imminent. Various strategies were used to weight variables in efforts to improve the predictive utility of the lapse risk estimator. Results: Participants (N=92) were mostly female (52/92, 57%), minority (65/92, 71%), 51.9 (SD 7.4) years old, and smoked 18.0 (SD 8.5) cigarettes per day. EMA data indicated significantly higher urges (P=.01), stress (P=.002), alcohol consumption (P$&amp;amp;amp;lt;$.001), interaction with someone smoking (P$&amp;lt;$.001), and lower cessation motivation (P=.03) within 4 hours of the first lapse compared with EMAs collected when lapse was not imminent. Further, the total number of lapse risk factors present within 4 hours of lapse (mean 2.43, SD 1.37) was significantly higher than the number of lapse risk factors present during periods when lapse was not imminent (mean 1.35, SD 1.04), P$<$.001. Overall, 62% (32/52) of all participants who lapsed completed at least one EMA wherein they reported $\geq$3 lapse risk factors within 4 hours of their first lapse. Differentially weighting lapse risk variables resulted in an improved risk estimator (weighted area=0.76 vs unweighted area=0.72, P$<$.004). Specifically, 80% (42/52) of all participants who lapsed had at least one EMA with a lapse risk score above the cut-off within 4 hours of their first lapse. Conclusions: Real-time estimation of smoking lapse risk is feasible and may pave the way for development of mobile phone based smoking cessation treatments that automatically tailor treatment content in real time based on presence of specific lapse triggers. Interventions that identify risk for lapse and automatically deliver tailored messages or other treatment components in real time;,citation_author=Michael S Businelle;,citation_author=Ping Ma;,citation_author=Darla E Kendzor;,citation_author=Summer G Frank;,citation_author=David W Wetter;,citation_author=Damon J Vidrine;,citation_publication_date=2016-10;,citation_cover_date=2016-10;,citation_year=2016;,citation_issue=10;,citation_doi=10/f9bvfc;,citation_issn=1438-8871;,citation_volume=18;,citation_language=en-US;,citation_journal_title=Journal of Medical Internet Research;">
+<meta name="citation_reference" content="citation_title=Predictive modeling of addiction lapses in a mobile health application;,citation_abstract=The chronically relapsing nature of alcoholism leads to substantial personal, family, and societal costs. Addiction-comprehensive health enhancement support system (A-CHESS) is a smartphone application that aims to reduce relapse. To offer targeted support to patients who are at risk of lapses within the coming week, a Bayesian network model to predict such events was constructed using responses on 2,934 weekly surveys (called the Weekly Check-in) from 152 alcohol-dependent individuals who recently completed residential treatment. The Weekly Check-in is a self-monitoring service, provided in A-CHESS, to track patients’ recovery progress. The model showed good predictability, with the area under receiver operating characteristic curve of 0.829 in the 10-fold cross-validation and 0.912 in the external validation. The sensitivity/specificity table assists the tradeoff decisions necessary to apply the model in practice. This study moves us closer to the goal of providing lapse prediction so that patients might receive more targeted and timely support.;,citation_author=Ming-Yuan Chih;,citation_author=Timothy Patton;,citation_author=Fiona M. McTavish;,citation_author=Andrew J. Isham;,citation_author=Chris L. Judkins-Fisher;,citation_author=Amy K. Atwood;,citation_author=David H. Gustafson;,citation_publication_date=2014-01;,citation_cover_date=2014-01;,citation_year=2014;,citation_issue=1;,citation_doi=10.1016/j.jsat.2013.08.004;,citation_issn=1873-6483;,citation_pmid=24035143;,citation_volume=46;,citation_language=en-US;,citation_journal_title=Journal of Substance Abuse Treatment;">
+<meta name="citation_reference" content="citation_title=Predictive modeling of addiction lapses in a mobile health application;,citation_abstract=The chronically relapsing nature of alcoholism leads to substantial personal, family, and societal costs. Addiction-Comprehensive Health Enhancement Support System (A-CHESS) is a smartphone application that aims to reduce relapse. To offer targeted support to patients who are at risk of lapses within the coming week, a Bayesian network model to predict such events was constructed using responses on 2,934 weekly surveys (called the Weekly Check-in) from 152 alcohol-dependent individuals who recently completed residential treatment. The Weekly Check-in is a self-monitoring service, provided in A-CHESS, to track patients’ recovery progress. The model showed good predictability, with the area under receiver operating characteristic curve of 0.829 in the 10-fold cross-validation and 0.912 in the external validation. The sensitivity/ specificity table assists the tradeoff decisions necessary to apply the model in practice. This study moves us closer to the goal of providing lapse prediction so that patients might receive more targeted and timely support.;,citation_author=Ming-Yuan Chih;,citation_author=Timothy Patton;,citation_author=Fiona M. McTavish;,citation_author=Andrew J. Isham;,citation_author=Chris L. Judkins-Fisher;,citation_author=Amy K. Atwood;,citation_author=David H. Gustafson;,citation_publication_date=2014-01;,citation_cover_date=2014-01;,citation_year=2014;,citation_issue=1;,citation_doi=10.1016/j.jsat.2013.08.004;,citation_issn=07405472;,citation_volume=46;,citation_language=en-US;,citation_journal_title=Journal of Substance Abuse Treatment;">
+<meta name="citation_reference" content="citation_title=Predicting short-term suicidal thoughts in adolescents using machine learning: Developing decision tools to identify daily level risk after hospitalization;,citation_abstract=Background. Mobile technology offers unique opportunities for monitoring short-term suicide risk in daily life. In this study of suicidal adolescent inpatients, theoretically informed risk factors were assessed daily following discharge to predict near-term suicidal ideation and inform decision algorithms for identifying elevations in daily level risk, with implications for real-time suicide-focused interventions. Methods. Adolescents (N = 78; 67.9% female) completed brief surveys texted daily for 4 weeks after discharge (n = 1621 observations). Using multi-level classification and regression trees (CARTSs) with repeated 5-fold cross-validation, we tested (a) a simple prediction model incorporating previous-day scores for each of 10 risk factors, and (b) a more complex model incorporating, for each of these factors, a time-varying person-specific mean over prior days together with deviation from that mean. Models also incorporated missingness and contextual (study week, day of the week) indicators. The outcome was the presence/ absence of next-day suicidal ideation. Results. The best-performing model (cross-validated AUC = 0.86) was a complex model that included ideation duration, hopelessness, burdensomeness, and self-efficacy to refrain from suicidal action. An equivalent model that excluded ideation duration had acceptable overall performance (cross-validated AUC = 0.78). Models incorporating only previous-day scores, with and without ideation duration (cross-validated AUC of 0.82 and 0.75, respectively), showed relatively weaker performance. Conclusions. Results suggest that specific combinations of dynamic risk factors assessed in adolescents’ daily life have promising utility in predicting next-day suicidal thoughts. Findings represent an important step in the development of decision tools identifying short-term risk as well as guiding timely interventions sensitive to proximal elevations in suicide risk in daily life.;,citation_author=E. K. Czyz;,citation_author=H. J. Koo;,citation_author=N. Al-Dajani;,citation_author=C. A. King;,citation_author=I. Nahum-Shani;,citation_publication_date=2023-05;,citation_cover_date=2023-05;,citation_year=2023;,citation_issue=7;,citation_doi=10.1017/S0033291721005006;,citation_issn=0033-2917, 1469-8978;,citation_volume=53;,citation_language=en-US;,citation_journal_title=Psychological Medicine;">
+<meta name="citation_reference" content="citation_title=Classifying smoking urges via machine learning;,citation_abstract=Background and objective Smoking is the largest preventable cause of death and diseases in the developed world, and advances in modern electronics and machine learning can help us deliver real-time intervention to smokers in novel ways. In this paper, we examine different machine learning approaches to use situational features associated with having or not having urges to smoke during a quit attempt in order to accurately classify high-urge states. Methods To test our machine learning approaches, specifically, Bayes, discriminant analysis and decision tree learning methods, we used a dataset collected from over 300 participants who had initiated a quit attempt. The three classification approaches are evaluated observing sensitivity, specificity, accuracy and precision. Results The outcome of the analysis showed that algorithms based on feature selection make it possible to obtain high classification rates with only a few features selected from the entire dataset. The classification tree method outperformed the naive Bayes and discriminant analysis methods, with an accuracy of the classifications up to 86%. These numbers suggest that machine learning may be a suitable approach to deal with smoking cessation matters, and to predict smoking urges, outlining a potential use for mobile health applications. Conclusions In conclusion, machine learning classifiers can help identify smoking situations, and the search for the best features and classifier parameters significantly improves the algorithms’ performance. In addition, this study also supports the usefulness of new technologies in improving the effect of smoking cessation interventions, the management of time and patients by therapists, and thus the optimization of available health care resources. Future studies should focus on providing more adaptive and personalized support to people who really need it, in a minimum amount of time by developing novel expert systems capable of delivering real-time interventions.;,citation_author=Antoine Dumortier;,citation_author=Ellen Beckjord;,citation_author=Saul Shiffman;,citation_author=Ervin Sejdić;,citation_publication_date=2016-12;,citation_cover_date=2016-12;,citation_year=2016;,citation_doi=10.1016/j.cmpb.2016.09.016;,citation_issn=0169-2607;,citation_volume=137;,citation_language=en-US;,citation_journal_title=Computer Methods and Programs in Biomedicine;">
+<meta name="citation_reference" content="citation_title=Prediction of stress and drug craving ninety minutes in the future with passively collected GPS data;,citation_author=David H. Epstein;,citation_author=Matthew Tyburski;,citation_author=William J. Kowalczyk;,citation_author=Albert J. Burgess-Hull;,citation_author=Karran A. Phillips;,citation_author=Brenda L. Curtis;,citation_author=Kenzie L. Preston;,citation_publication_date=2020-12;,citation_cover_date=2020-12;,citation_year=2020;,citation_issue=1;,citation_doi=10/ghqvcw;,citation_issn=2398-6352;,citation_volume=3;,citation_language=en-US;,citation_journal_title=npj Digital Medicine;">
+<meta name="citation_reference" content="citation_title=Predicting the first smoking lapse during a quit attempt: A machine learning approach;,citation_abstract=Background Just-in-time adaptive interventions (JITAI) aim to prevent smoking lapse using tailored support delivered via mobile technology in the moments when it is most needed. Effective smoking cessation JITAI rely on the development of accurate decision rules that determine when someone is most likely to lapse. The primary goal of the present study was to identify the strongest predictors of first lapse among smokers undergoing a quit attempt. Methods Smokers attending a clinic-based smoking cessation program (n = 74) were asked to complete ecological momentary assessments five times daily on study-provided smartphones for 4 weeks post-quit. A three-stage modeling process utilized Cox proportional hazards regression to examine time to lapse a function of 31 predictors. First, univariate models evaluated the relationship between each predictor and time to lapse. Second, the elastic net machine learning algorithm was used to select the best predictors. Third, backwards elimination further reduced the set of predictors to optimize parsimony. Results Univariate models identified seven predictors significantly related to time to lapse. The elastic net algorithm retained five: perceived odds of smoking today, confidence in ability to avoid smoking, motivation to avoid smoking, urge to smoke, and cigarette availability. The reduced model demonstrated inadequate approximation to the non-penalized baseline model. Conclusions Accurate estimation of moments of high risk for smoking lapse remains an important goal in the development of JITAI. These results demonstrate the utility of exploratory data-driven approaches to variable selection. The results of this study can inform future JITAI by highlighting targets for intervention.;,citation_author=Emily T. Hébert;,citation_author=Robert Suchting;,citation_author=Chaelin K. Ra;,citation_author=Adam C. Alexander;,citation_author=Darla E. Kendzor;,citation_author=Damon J. Vidrine;,citation_author=Michael S. Businelle;,citation_publication_date=2021-01;,citation_cover_date=2021-01;,citation_year=2021;,citation_doi=10.1016/j.drugalcdep.2020.108340;,citation_issn=0376-8716;,citation_volume=218;,citation_language=en-US;,citation_journal_title=Drug and Alcohol Dependence;">
+<meta name="citation_reference" content="citation_title=Intensive longitudinal assessment following index trauma to predict development of PTSD using machine learning;,citation_abstract=There are significant challenges to identifying which individuals require intervention following exposure to trauma, and a need for strategies to identify and provide individuals at risk for developing PTSD with timely interventions. The present study seeks to identify a minimal set of trauma-related symptoms, assessed during the weeks following traumatic exposure, that can accurately predict PTSD. Participants were 2185 adults (Mean age=36.4 years; 64% women; 50% Black) presenting for emergency care following traumatic exposure. Participants received a “flash survey” with 6–8 varying symptoms (from a pool of 26 trauma symptoms) several times per week for eight weeks following the trauma exposure (each symptom assessed $\sim$6 times). Features (mean, sd, last, worst, peak-end scores) from the repeatedly assessed symptoms were included as candidate variables in a CART machine learning analysis to develop a pragmatic predictive algorithm. PTSD (PCL-5&nbsp;$\geq$38) was present for 669 (31%) participants at the 8-week follow-up. A classification tree with three splits, based on mean scores of nervousness, rehashing, and fatigue, predicted PTSD with an Area Under the Curve of 0.836. Findings suggest feasibility for a 3-item assessment protocol, delivered once per week, following traumatic exposure to assess and potentially facilitate follow-up care for those at risk.;,citation_author=Adam Horwitz;,citation_author=Kaitlyn McCarthy;,citation_author=Stacey L. House;,citation_author=Francesca L. Beaudoin;,citation_author=Xinming An;,citation_author=Thomas C. Neylan;,citation_author=Gari D. Clifford;,citation_author=Sarah D. Linnstaedt;,citation_author=Laura T. Germine;,citation_author=Scott L. Rauch;,citation_author=John P. Haran;,citation_author=Alan B. Storrow;,citation_author=Christopher Lewandowski;,citation_author=Paul I. Musey Jr.;,citation_author=Phyllis L. Hendry;,citation_author=Sophia Sheikh;,citation_author=Christopher W. Jones;,citation_author=Brittany E. Punches;,citation_author=Robert A. Swor;,citation_author=Lauren A. Hudak;,citation_author=Jose L. Pascual;,citation_author=Mark J. Seamon;,citation_author=Erica Harris;,citation_author=Claire Pearson;,citation_author=David A. Peak;,citation_author=Robert M. Domeier;,citation_author=Niels K. Rathlev;,citation_author=Paulina Sergot;,citation_author=Leon D. Sanchez;,citation_author=Steven E. Bruce;,citation_author=Jutta Joormann;,citation_author=Steven E. Harte;,citation_author=Karestan C. Koenen;,citation_author=Samuel A. McLean;,citation_author=Srijan Sen;,citation_publication_date=2024-06;,citation_cover_date=2024-06;,citation_year=2024;,citation_doi=10.1016/j.janxdis.2024.102876;,citation_issn=0887-6185;,citation_volume=104;,citation_journal_title=Journal of Anxiety Disorders;">
+<meta name="citation_reference" content="citation_title=Digital biomarkers of anxiety disorder symptom changes: Personalized deep learning models using smartphone sensors accurately predict anxiety symptoms from ecological momentary assessments;,citation_author=Nicholas C. Jacobson;,citation_author=Sukanya Bhattacharya;,citation_publication_date=2022-02;,citation_cover_date=2022-02;,citation_year=2022;,citation_doi=10.1016/j.brat.2021.104013;,citation_issn=00057967;,citation_volume=149;,citation_language=en-US;,citation_journal_title=Behaviour Research and Therapy;">
+<meta name="citation_reference" content="citation_title=Passive Sensing of Prediction of Moment-To-Moment Depressed Mood among Undergraduates with Clinical Levels of Depression Sample Using Smartphones;,citation_abstract=Prior research has recently shown that passively collected sensor data collected within the contexts of persons daily lives via smartphones and wearable sensors can distinguish those with major depressive disorder (MDD) from controls, predict MDD severity, and predict changes in MDD severity across days and weeks. Nevertheless, very little research has examined predicting depressed mood within a day, which is essential given the large amount of variation occurring within days. The current study utilized passively collected sensor data collected from a smartphone application to future depressed mood from hour-to-hour in an ecological momentary assessment study in a sample reporting clinical levels of depression (N = 31). Using a combination of nomothetic and idiographically-weighted machine learning models, the results suggest that depressed mood can be accurately predicted from hour to hour with an average correlation between out of sample predicted depressed mood levels and observed depressed mood of 0.587, CI [0.552, 0.621]. This suggests that passively collected smartphone data can accurately predict future depressed mood among a sample reporting clinical levels of depression. If replicated in other samples, this modeling framework may allow just-in-time adaptive interventions to treat depression as it changes in the context of daily life.;,citation_author=Nicholas C. Jacobson;,citation_author=Yeon Joo Chung;,citation_publication_date=2020-06;,citation_cover_date=2020-06;,citation_year=2020;,citation_issue=12;,citation_doi=10.3390/s20123572;,citation_issn=1424-8220;,citation_volume=20;,citation_language=en-US;,citation_journal_title=Sensors;">
+<meta name="citation_reference" content="citation_title=Compliance with ecological momentary assessment protocols in substance users: A meta-analysis;,citation_abstract=Background and Aims While there are considerable benefits to Ecological Momentary Assessment (EMA), poor compliance with assessment protocols has been identified as a limitation, particularly in substance users. Our aim was to identify the pooled compliance rate of EMA studies in substance users and examine variables that may influence compliance with EMA protocols, such as the length and frequency of assessments. Design A meta-analysis and meta-regression of all possible studies (randomized controlled trials and longitudinal) which incorporated EMA protocols, examining substance use. Setting Studies took place from 1998 to 2017, in numerous countries world-wide. Participants One hundred and twenty-six studies were identified, contributing a total of 19&nbsp;431 participants (52.32% male, mean age&nbsp;=&nbsp;28.86). Measurements Compliance data, the proportion of responses to the study protocol, were extracted from each study alongside prompt frequency, total length of assessment period, substance use population and device used to administer EMA prompts. Findings The pooled compliance rate across all studies was 75.06% [95% confidence interval (CI)&nbsp;=&nbsp;72.37%, 77.65%]. There was no evidence that compliance rates were significantly associated with prompt frequency [Q(3) = 7.35, P&nbsp;=&nbsp;0.061], length of assessment period [Q(2) = 2.40, P&nbsp;=&nbsp;0.301], substance type [Q(3) = 6.30, P&nbsp;=&nbsp;0.098] or device administration [Q(4) = 4.28, P&nbsp;=&nbsp;0.369]. However, dependent samples (69.80%) had lower compliance rates than non-dependent samples [76.02%; Q(1) = 4.13, P&nbsp;=&nbsp;0.042]. Conclusions The pooled compliance rate for Ecological Momentary Assessment studies in substance-using populations from 1998 to 2017 was lower than the recommended rate of 80%, and was not associated with frequency or duration of assessments.;,citation_author=Andrew Jones;,citation_author=Danielle Remmerswaal;,citation_author=Ilse Verveer;,citation_author=Eric Robinson;,citation_author=Ingmar H. A. Franken;,citation_author=Cheng K. Fred Wen;,citation_author=Matt Field;,citation_publication_date=2019-04;,citation_cover_date=2019-04;,citation_year=2019;,citation_issue=4;,citation_doi=10/gfsjzg;,citation_issn=0965-2140;,citation_pmid=30461120;,citation_volume=114;,citation_journal_title=Addiction (Abingdon, England);">
+<meta name="citation_reference" content="citation_title=Depression Prediction by Using Ecological Momentary Assessment, Actiwatch Data, and Machine Learning: Observational Study on Older Adults Living Alone;,citation_abstract=Background: Although geriatric depression is prevalent, diagnosis using self-reporting instruments has limitations when measuring the depressed mood of older adults in a community setting. Ecological momentary assessment (EMA) by using wearable devices could be used to collect data to classify older adults into depression groups. Objective: The objective of this study was to develop a machine learning algorithm to predict the classification of depression groups among older adults living alone. We focused on utilizing diverse data collected through a survey, an Actiwatch, and an EMA report related to depression. Methods: The prediction model using machine learning was developed in 4 steps: (1) data collection, (2) data processing and representation, (3) data modeling (feature engineering and selection), and (4) training and validation to test the prediction model. Older adults (N=47), living alone in community settings, completed an EMA to report depressed moods 4 times a day for 2 weeks between May 2017 and January 2018. Participants wore an Actiwatch that measured their activity and ambient light exposure every 30 seconds for 2 weeks. At baseline and the end of the 2-week observation, depressive symptoms were assessed using the Korean versions of the Short Geriatric Depression Scale (SGDS-K) and the Hamilton Depression Rating Scale (K-HDRS). Conventional classification based on binary logistic regression was built and compared with 4 machine learning models (the logit, decision tree, boosted tree, and random forest models). Results: On the basis of the SGDS-K and K-HDRS, 38% (18/47) of the participants were classified into the probable depression group. They reported significantly lower scores of normal mood and physical activity and higher levels of white and red, green, and blue (RGB) light exposures at different degrees of various 4-hour time frames (all P$&amp;amp;amp;lt;$.05). Sleep efficiency was chosen for modeling through feature selection. Comparing diverse combinations of the selected variables, daily mean EMA score, daily mean activity level, white and RGB light at 4:00 pm to 8:00 pm exposure, and daily sleep efficiency were selected for modeling. Conventional classification based on binary logistic regression had a good model fit (accuracy: 0.705; precision: 0.770; specificity: 0.859; and area under receiver operating characteristic curve or AUC: 0.754). Among the 4 machine learning models, the logit model had the best fit compared with the others (accuracy: 0.910; precision: 0.929; specificity: 0.940; and AUC: 0.960). Conclusions: This study provides preliminary evidence for developing a machine learning program to predict the classification of depression groups in older adults living alone. Clinicians should consider using this method to identify underdiagnosed subgroups and monitor daily progression regarding treatment or therapeutic intervention in the community setting. Furthermore, more efforts are needed for researchers and clinicians to diversify data collection methods by using a survey, EMA, and a sensor.;,citation_author=Heejung Kim;,citation_author=SungHee Lee;,citation_author=SangEun Lee;,citation_author=Soyun Hong;,citation_author=HeeJae Kang;,citation_author=Namhee Kim;,citation_publication_date=2019-10;,citation_cover_date=2019-10;,citation_year=2019;,citation_issue=10;,citation_doi=10.2196/14149;,citation_volume=7;,citation_language=en-US;,citation_journal_title=JMIR mHealth and uHealth;,citation_publisher=JMIR Publications Inc., Toronto, Canada;">
+<meta name="citation_reference" content="citation_title=Personal Sensing: Understanding Mental Health Using Ubiquitous Sensors and Machine Learning;,citation_abstract=Sensors in everyday devices, such as our phones, wearables, and computers, leave a stream of digital traces. Personal sensing refers to collecting and analyzing data from sensors embedded in the context of daily life with the aim of identifying human behaviors, thoughts, feelings, and traits. This article provides a critical review of personal sensing research related to mental health, focused principally on smartphones, but also including studies of wearables, social media, and computers. We provide a layered, hierarchical model for translating raw sensor data into markers of behaviors and states related to mental health. Also discussed are research methods as well as challenges, including privacy and problems of dimensionality. Although personal sensing is still in its infancy, it holds great promise as a method for conducting mental health research and as a clinical tool for monitoring at-risk populations and providing the foundation for the next generation of mobile health (or mHealth) interventions.;,citation_author=David C. Mohr;,citation_author=Mi Zhang;,citation_author=Stephen M. Schueller;,citation_publication_date=2017;,citation_cover_date=2017;,citation_year=2017;,citation_issue=1;,citation_doi=10.1146/annurev-clinpsy-032816-044949;,citation_pmid=28375728;,citation_volume=13;,citation_journal_title=Annual Review of Clinical Psychology;">
+<meta name="citation_reference" content="citation_title=Prospective Prediction of Lapses in Opioid Use Disorder: Protocol for a Personal Sensing Study;,citation_abstract=Background: Successful long-term recovery from opioid use disorder (OUD) requires continuous lapse risk monitoring and appropriate use and adaptation of recovery-supportive behaviors as lapse risk changes. Available treatments often fail to support long-term recovery by failing to account for the dynamic nature of long-term recovery. Objective: The aim of this protocol paper is to describe research that aims to develop a highly contextualized lapse risk prediction model that forecasts the ongoing probability of lapse. Methods: The participants will include 480 US adults in their first year of recovery from OUD. Participants will report lapses and provide data relevant to lapse risk for a year with a digital therapeutic smartphone app through both self-report and passive personal sensing methods (eg, cellular communications and geolocation). The lapse risk prediction model will be developed using contemporary rigorous machine learning methods that optimize prediction in new data. Results: The National Institute of Drug Abuse funded this project (R01DA047315) on July 18, 2019 with a funding period from August 1, 2019 to June 30, 2024. The University of Wisconsin-Madison Health Sciences Institutional Review Board approved this project on July 9, 2019. Pilot enrollment began on April 16, 2021. Full enrollment began in September 2021. Conclusions: The model that will be developed in this project could support long-term recovery from OUD—for example, by enabling just-in-time interventions within digital therapeutics.;,citation_author=Hannah Moshontz;,citation_author=Alejandra J. Colmenares;,citation_author=Gaylen E. Fronk;,citation_author=Sarah J. Sant’Ana;,citation_author=Kendra Wyant;,citation_author=Susan E. Wanta;,citation_author=Adam Maus;,citation_author=David H. Gustafson Jr;,citation_author=Dhavan Shah;,citation_author=John J. Curtin;,citation_publication_date=2021-12;,citation_cover_date=2021-12;,citation_year=2021;,citation_issue=12;,citation_doi=10.2196/29563;,citation_volume=10;,citation_language=en-US;,citation_journal_title=JMIR Research Protocols;,citation_publisher=JMIR Publications Inc., Toronto, Canada;">
+<meta name="citation_reference" content="citation_title=Ensemble machine learning prediction of posttraumatic stress disorder screening status after emergency room hospitalization;,citation_abstract=Posttraumatic stress disorder (PTSD) develops in a substantial minority of emergency room admits. Inexpensive and accurate person-level assessment of PTSD risk after trauma exposure is a critical precursor to large-scale deployment of early interventions that may reduce individual suffering and societal costs. Toward this aim, we applied ensemble machine learning to predict PTSD screening status three months after severe injury using cost-effective and minimally invasive data. Participants (N = 271) were recruited at a Level 1 Trauma Center where they provided variables routinely collected at the hospital, including pulse, injury severity, and demographics, as well as psychological variables, including self-reported current depression, psychiatric history, and social support. Participant zip codes were used to extract contextual variables including population total and density, average annual income, and health insurance coverage rates from publicly available U.S. Census data. Machine learning yielded good prediction of PTSD screening status 3 months post-hospitalization, AUC = 0.85 95% CI [0.83, 0.86], and significantly outperformed all benchmark comparison models in a cross-validation procedure designed to yield an unbiased estimate of performance. These results demonstrate that good prediction can be attained from variables that individually have relatively weak predictive value, pointing to the promise of ensemble machine learning approaches that do not rely on strong isolated risk factors.;,citation_author=Santiago Papini;,citation_author=Derek Pisner;,citation_author=Jason Shumake;,citation_author=Mark B. Powers;,citation_author=Christopher G. Beevers;,citation_author=Evan E. Rainey;,citation_author=Jasper A. J. Smits;,citation_author=Ann Marie Warren;,citation_publication_date=2018-12;,citation_cover_date=2018-12;,citation_year=2018;,citation_doi=10.1016/j.janxdis.2018.10.004;,citation_issn=0887-6185;,citation_volume=60;,citation_language=en-US;,citation_journal_title=Journal of Anxiety Disorders;">
+<meta name="citation_reference" content="citation_title=Depression screening using mobile phone usage metadata: A machine learning approach;,citation_abstract=Depression is currently the second most significant contributor to non-fatal disease burdens globally. While it is treatable, depression remains undiagnosed in many cases. As mobile phones have now become an integral part of daily life, this study examines the possibility of screening for depressive symptoms continuously based on patients’ mobile usage patterns.412 research participants reported a range of their mobile usage statistics. Beck Depression Inventory—2nd ed (BDI-II) was used to measure the severity of depression among participants. A wide array of machine learning classification algorithms was trained to detect participants with depression symptoms (ie, BDI-II score $\geq$ 14). The relative importance of individual variables was additionally quantified.Participants with depression were found to have fewer saved contacts on their devices, spend more time on their mobile devices to make and receive fewer and shorter calls, and send more text messages than participants without depression. The best model was a random forest classifier, which had an out-of-sample balanced accuracy of 0.768. The balanced accuracy increased to 0.811 when participants’ age and gender were included.The significant predictive power of mobile usage attributes implies that, by collecting mobile usage statistics, mental health mobile applications can continuously screen for depressive symptoms for initial diagnosis or for monitoring the progress of ongoing treatments. Moreover, the input variables used in this study were aggregated mobile usage metadata attributes, which has low privacy sensitivity making it more likely for patients to grant required application permissions.;,citation_author=Rouzbeh Razavi;,citation_author=Amin Gharipour;,citation_author=Mojgan Gharipour;,citation_publication_date=2020-04;,citation_cover_date=2020-04;,citation_year=2020;,citation_issue=4;,citation_doi=10.1093/jamia/ocz221;,citation_issn=1527-974X;,citation_volume=27;,citation_journal_title=Journal of the American Medical Informatics Association;">
+<meta name="citation_reference" content="citation_title=Using machine learning to predict heavy drinking during outpatient alcohol treatment;,citation_abstract=Background Accurate clinical prediction supports the effective treatment of alcohol use disorder (AUD) and other psychiatric disorders. Traditional statistical techniques have identified patient characteristics associated with treatment outcomes. However, less work has focused on systematically leveraging these associations to create optimal predictive models. The current study demonstrates how machine learning can be used to predict clinical outcomes in people completing outpatient AUD treatment. Method We used data from the COMBINE multisite clinical trial (n = 1383) to develop and test predictive models. We identified three priority prediction targets, including (1) heavy drinking during the first month of treatment, (2) heavy drinking during the last month of treatment, and (3) heavy drinking between weekly/bi-weekly sessions. Models were generated using the random forest algorithm. We used “leave sites out” partitioning to externally validate the models in trial sites that were not included in the model training. Stratified model development was used to test for sex differences in the relative importance of predictive features. Results Models predicting heavy alcohol use during the first and last months of treatment showed internal cross-validation area under the curve (AUC) scores ranging from 0.67 to 0.74. AUC was comparable in the external validation using data from held-out sites (AUC range = 0.69 to 0.72). The model predicting between-session heavy drinking showed strong classification accuracy in internal cross-validation (AUC = 0.89) and external test samples (AUC range = 0.80 to 0.87). Stratified analyses showed substantial sex differences in optimal feature sets. Conclusion Machine learning techniques can predict alcohol treatment outcomes using routinely collected clinical data. This technique has the potential to greatly improve clinical prediction accuracy without requiring expensive or invasive assessment methods. More research is needed to understand how best to deploy these models.;,citation_author=Walter Roberts;,citation_author=Yize Zhao;,citation_author=Terril Verplaetse;,citation_author=Kelly E. Moore;,citation_author=MacKenzie R. Peltier;,citation_author=Catherine Burke;,citation_author=Yasmin Zakiniaeiz;,citation_author=Sherry McKee;,citation_publication_date=2022;,citation_cover_date=2022;,citation_year=2022;,citation_issue=4;,citation_doi=10.1111/acer.14802;,citation_issn=1530-0277;,citation_volume=46;,citation_language=en-US;,citation_journal_title=Alcohol: Clinical and Experimental Research;">
+<meta name="citation_reference" content="citation_title=Using machine learning to identify predictors of imminent drinking and create tailored messages for at-risk drinkers experiencing homelessness;,citation_abstract=Adults experiencing homelessness are more likely to have an alcohol use disorder compared to adults in the general population. Although shelter-based treatments are common, completion rates tend to be poor, suggesting a need for more effective approaches that are tailored to this understudied and underserved population. One barrier to developing more effective treatments is the limited knowledge of the triggers of alcohol use among homeless adults. This paper describes the use of ecological momentary assessment (EMA) to identify predictors of “imminent drinking” (i.e., drinking within the next 4 h), among a sample of adults experiencing homelessness and receiving health services at a homeless shelter. A total of 78 mostly male (84.6%) adults experiencing homelessness (mean age = 46.6) who reported hazardous drinking completed up to five EMAs per day over 4 weeks (a total of 4557 completed EMAs). The study used machine learning techniques to create a drinking risk algorithm that predicted 82% of imminent drinking episodes within 4 h of the first drink of the day, and correctly identified 76% of nondrinking episodes. The algorithm included the following 7 predictors of imminent drinking: urge to drink, having alcohol easily available, feeling confident that alcohol would improve mood, feeling depressed, lower commitment to being alcohol free, not interacting with someone drinking alcohol, and being indoors. The research team used the results to develop intervention content (e.g., brief tailored messages) that will be delivered when imminent drinking is detected in an upcoming intervention phase. Specifically, we created three theoretically grounded message tracks focused on urge/craving, social/availability, and negative affect/mood, which are further tailored to a participant’s current drinking goal (i.e., stay sober, drink less, no goal) to support positive change. To our knowledge, this is the first study to develop tailored intervention messages based on likelihood of imminent drinking, current drinking triggers, and drinking goals among adults experiencing homelessness.;,citation_author=Scott T. Walters;,citation_author=Michael S. Businelle;,citation_author=Robert Suchting;,citation_author=Xiaoyin Li;,citation_author=Emily T. Hébert;,citation_author=Eun-Young Mun;,citation_publication_date=2021-08;,citation_cover_date=2021-08;,citation_year=2021;,citation_doi=10.1016/j.jsat.2021.108417;,citation_issn=07405472;,citation_volume=127;,citation_language=en-US;,citation_journal_title=Journal of Substance Abuse Treatment;">
+<meta name="citation_reference" content="citation_title=Acceptability of Personal Sensing Among People With Alcohol Use Disorder: Observational Study;,citation_abstract=Background: Personal sensing may improve digital therapeutics for mental health care by facilitating early screening, symptom monitoring, risk prediction, and personalized adaptive interventions. However, further development and the use of personal sensing requires a better understanding of its acceptability to people targeted for these applications. Objective: We aimed to assess the acceptability of active and passive personal sensing methods in a sample of people with moderate to severe alcohol use disorder using both behavioral and self-report measures. This sample was recruited as part of a larger grant-funded project to develop a machine learning algorithm to predict lapses. Methods: Participants (N=154; n=77, 50% female; mean age 41, SD 11.9 years; n=134, 87% White and n=150, 97% non-Hispanic) in early recovery (1-8 weeks of abstinence) were recruited to participate in a 3-month longitudinal study. Participants were modestly compensated for engaging with active (eg, ecological momentary assessment [EMA], audio check-in, and sleep quality) and passive (eg, geolocation, cellular communication logs, and SMS text message content) sensing methods that were selected to tap into constructs from the Relapse Prevention model by Marlatt. We assessed 3 behavioral indicators of acceptability: participants’ choices about their participation in the study at various stages in the procedure, their choice to opt in to provide data for each sensing method, and their adherence to a subset of the active methods (EMA and audio check-in). We also assessed 3 self-report measures of acceptability (interference, dislike, and willingness to use for 1 year) for each method. Results: Of the 192 eligible individuals screened, 191 consented to personal sensing. Most of these individuals (169/191, 88.5%) also returned 1 week later to formally enroll, and 154 participated through the first month follow-up visit. All participants in our analysis sample opted in to provide data for EMA, sleep quality, geolocation, and cellular communication logs. Out of 154 participants, 1 (0.6%) did not provide SMS text message content and 3 (1.9%) did not provide any audio check-ins. The average adherence rate for the 4 times daily EMA was .80. The adherence rate for the daily audio check-in was .54. Aggregate participant ratings indicated that all personal sensing methods were significantly more acceptable (all P&amp;amp;amp;lt;.001) compared with neutral across subjective measures of interference, dislike, and willingness to use for 1 year. Participants did not significantly differ in their dislike of active methods compared with passive methods (P=.23). However, participants reported a higher willingness to use passive (vs active) methods for 1 year (P=.04). Conclusions: These results suggest that active and passive sensing methods are acceptable for people with alcohol use disorder over a longer period than has previously been assessed. Important individual differences were observed across people and methods, indicating opportunities for future improvement.;,citation_author=Kendra Wyant;,citation_author=Hannah Moshontz;,citation_author=Stephanie B. Ward;,citation_author=Gaylen E. Fronk;,citation_author=John J. Curtin;,citation_publication_date=2023-08;,citation_cover_date=2023-08;,citation_year=2023;,citation_issue=1;,citation_doi=10.2196/41833;,citation_volume=11;,citation_language=en-US;,citation_journal_title=JMIR mHealth and uHealth;,citation_publisher=JMIR Publications Inc., Toronto, Canada;">
+<meta name="citation_reference" content="citation_title=Lagged Predictions of Next Day Alcohol Use for Adaptive and Personalized Continuing Care;,citation_author=Kendra Wyant;,citation_author=Gaylen Fronk;,citation_author=Jiachen Yu;,citation_author=John Curtin;">
+<meta name="citation_reference" content="citation_title=Machine learning models for temporally precise lapse prediction in alcohol use disorder;,citation_abstract=We developed three machine learning models that predict hour-by-hour probabilities of a future lapse back to alcohol use with increasing temporal precision (i.e., lapses in the next week, next day, and next hour). Model features were based on raw scores and longitudinal change in theoretically implicated risk factors collected through ecological momentary assessment. Participants (N = 151, 51% male, Mage = 41, 87% White, 97% non-Hispanic) in early recovery (1–8 weeks of abstinence) from alcohol use disorder provided 4  daily ecological momentary assessment for up to 3 months. We used grouped, nested cross-validation to select the best models and evaluate the performance of those best models. Models yielded median areas under the receiver operating curves of 0.89, 0.90, and 0.93 in the 30 held-out test sets for week-, day-, and hour-level models, respectively. Some feature categories consistently emerged as being globally important to lapse prediction across our week-, day-, and hour-level models (i.e., past use, future self-efficacy). However, most of the more punctate, time-varying constructs (e.g., craving, past stressful events, arousal) appear to have a greater impact within the next-hour prediction model. This research represents an important step toward the development of a smart (machine learning guided) sensing system that can both identify periods of peak lapse risk and recommend specific supports to address factors contributing to this risk. (PsycInfo Database Record (c) 2024 APA, all rights reserved);,citation_author=Kendra Wyant;,citation_author=Sarah J. Sant’Ana;,citation_author=Gaylen E. Fronk;,citation_author=John J. Curtin;,citation_publication_date=2024;,citation_cover_date=2024;,citation_year=2024;,citation_issue=7;,citation_doi=10.1037/abn0000901;,citation_issn=2769-755X;,citation_volume=133;,citation_journal_title=Journal of Psychopathology and Clinical Science;,citation_publisher=American Psychological Association;">
+<meta name="citation_reference" content="citation_title=Optimizing Message Components of a Recovery Monitoring Support System for Engagement and Clinical Outcomes for Alcohol Use Disorder: Protocol for an Optimization Study;,citation_author=Kendra Wyant;,citation_author=Sarah Sant’Ana;,citation_author=Claire Punturieri;,citation_author=Jiachen Yu;,citation_author=Gaylen Fronk;,citation_author=Rachel Kornfield;,citation_author=John Curtin;">
+</head>
+
+<body>
+
+<header id="title-block-header" class="quarto-title-block default toc-left page-columns page-full">
+  <div class="quarto-title-banner page-columns page-full">
+    <div class="quarto-title column-body">
+      <h1 class="title">Adaptive EMA Sampling for Alcohol Lapse Risk Prediction - A Reinforcement Learning Approach</h1>
+          </div>
+
+    
+    <div class="quarto-title-meta-container">
+      <div class="quarto-title-meta-column-start">
+            <div class="quarto-title-meta-author">
+          <div class="quarto-title-meta-heading">Authors</div>
+          <div class="quarto-title-meta-heading">Affiliations</div>
+          
+                <div class="quarto-title-meta-contents">
+            <p class="author">Jeongyeol Kwon </p>
+          </div>
+                <div class="quarto-title-meta-contents">
+                    <p class="affiliation">
+                        Department of X, University of Wisconsin-Madison
+                      </p>
+                  </div>
+                      <div class="quarto-title-meta-contents">
+            <p class="author">Kendra Wyant </p>
+          </div>
+                <div class="quarto-title-meta-contents">
+                    <p class="affiliation">
+                        Department of Psychology, University of Wisconsin-Madison
+                      </p>
+                  </div>
+                      <div class="quarto-title-meta-contents">
+            <p class="author">John J. Curtin <a href="mailto:jjcurtin@wisc.edu" class="quarto-title-author-email"><i class="bi bi-envelope"></i></a> </p>
+          </div>
+                <div class="quarto-title-meta-contents">
+                    <p class="affiliation">
+                        Department of Psychology, University of Wisconsin-Madison
+                      </p>
+                  </div>
+                    </div>
+        
+        <div class="quarto-title-meta">
+
+                      
+                <div>
+            <div class="quarto-title-meta-heading">Published</div>
+            <div class="quarto-title-meta-contents">
+              <p class="date">February 26, 2025</p>
+            </div>
+          </div>
+          
+                
+              </div>
+      </div>
+      <div class="quarto-title-meta-column-end quarto-other-formats-target">
+      <div class="quarto-alternate-formats"><div class="quarto-title-meta-heading">Other Formats</div><div class="quarto-title-meta-contents"><p><a href="index.docx"><i class="bi bi-file-word"></i>MS Word</a></p></div></div></div>
+    </div>
+
+    <div>
+      <div class="abstract">
+        <div class="block-title">Abstract</div>
+        <p>Abstract here.</p>
+      </div>
+    </div>
+
+    <div>
+      <div class="keywords">
+        <div class="block-title">Keywords</div>
+        <p>Substance use disorders, Precision mental health</p>
+      </div>
+    </div>
+
+    <div class="quarto-other-links-text-target">
+    </div>  </div>
+</header><div id="quarto-content" class="page-columns page-rows-contents page-layout-article toc-left">
+<div id="quarto-sidebar-toc-left" class="sidebar toc-left">
+  <nav id="TOC" role="doc-toc" class="toc-active">
+    <h2 id="toc-title">Table of contents</h2>
+   
+  <ul>
+  <li><a href="#introduction" id="toc-introduction" class="nav-link active" data-scroll-target="#introduction">Introduction</a></li>
+  <li><a href="#methods" id="toc-methods" class="nav-link" data-scroll-target="#methods">Methods</a>
+  <ul class="collapse">
+  <li><a href="#data-analytic-strategy" id="toc-data-analytic-strategy" class="nav-link" data-scroll-target="#data-analytic-strategy">Data Analytic Strategy</a>
+  <ul class="collapse">
+  <li><a href="#model-architecture" id="toc-model-architecture" class="nav-link" data-scroll-target="#model-architecture">Model Architecture</a></li>
+  <li><a href="#model-evaluation" id="toc-model-evaluation" class="nav-link" data-scroll-target="#model-evaluation">Model Evaluation</a></li>
+  </ul></li>
+  <li><a href="#results" id="toc-results" class="nav-link" data-scroll-target="#results">Results</a>
+  <ul class="collapse">
+  <li><a href="#participants" id="toc-participants" class="nav-link" data-scroll-target="#participants">Participants</a></li>
+  <li><a href="#ema-adherence-and-sampling-frequency" id="toc-ema-adherence-and-sampling-frequency" class="nav-link" data-scroll-target="#ema-adherence-and-sampling-frequency">EMA Adherence and Sampling Frequency</a></li>
+  <li><a href="#model-evaluation-1" id="toc-model-evaluation-1" class="nav-link" data-scroll-target="#model-evaluation-1">Model Evaluation</a></li>
+  <li><a href="#model-comparisons" id="toc-model-comparisons" class="nav-link" data-scroll-target="#model-comparisons">Model Comparisons</a></li>
+  </ul></li>
+  </ul></li>
+  </ul>
+<div class="quarto-alternate-notebooks"><h2>Notebooks</h2><ul><li><a href="index-preview.html"><i class="bi bi-journal-code"></i>Article Notebook</a></li></ul></div></nav>
+</div>
+<div id="quarto-margin-sidebar" class="sidebar margin-sidebar zindex-bottom">
+</div>
+<main class="content quarto-banner-title-block" id="quarto-document-content">
+
+
+
+  
+
+
+<section id="introduction" class="level1">
+<h1>Introduction</h1>
+<p>Personal sensing is the collection and analyses of data collected via smartphone and other digital devices in the context of one’s day-to-day life <span class="citation" data-cites="mohrPersonalSensingUnderstanding2017">(<a href="#ref-mohrPersonalSensingUnderstanding2017" role="doc-biblioref">Mohr, Zhang, and Schueller 2017</a>)</span>.</p>
+<p>Personal sensing data can be used as inputs into machine learning algorithms to predict important psychological clinical outcomes. Existing literature suggests behavior (substance use <span class="citation" data-cites="wyantMachineLearningModels2024 wyantLaggedPredictionsNextinprep chihPredictiveModelingAddiction2014 businelleUsingIntensiveLongitudinal2016 hebertPredictingFirstSmoking2021 baeMobilePhoneSensors2018 waltersUsingMachineLearning2021 robertsUsingMachineLearning2022 baeLeveragingMobilePhone2023">(<a href="#ref-wyantMachineLearningModels2024" role="doc-biblioref">Wyant et al. 2024</a>, <a href="#ref-wyantLaggedPredictionsNextinprep" role="doc-biblioref">in prep</a>; <a href="#ref-chihPredictiveModelingAddiction2014" role="doc-biblioref">Chih et al. 2014</a>; <a href="#ref-businelleUsingIntensiveLongitudinal2016" role="doc-biblioref">Businelle et al. 2016</a>; <a href="#ref-hebertPredictingFirstSmoking2021" role="doc-biblioref">Hébert et al. 2021</a>; <a href="#ref-baeMobilePhoneSensors2018" role="doc-biblioref">S. Bae et al. 2018</a>; <a href="#ref-waltersUsingMachineLearning2021" role="doc-biblioref">Walters et al. 2021</a>; <a href="#ref-robertsUsingMachineLearning2022" role="doc-biblioref">Roberts et al. 2022</a>; <a href="#ref-baeLeveragingMobilePhone2023" role="doc-biblioref">S. W. Bae et al. 2023</a>)</span>), mood (depression <span class="citation" data-cites="jacobsonPassiveSensingPrediction2020 kimDepressionPredictionUsing2019 razaviDepressionScreeningUsing2020">(<a href="#ref-jacobsonPassiveSensingPrediction2020" role="doc-biblioref">Jacobson and Chung 2020</a>; <a href="#ref-kimDepressionPredictionUsing2019" role="doc-biblioref">Kim et al. 2019</a>; <a href="#ref-razaviDepressionScreeningUsing2020" role="doc-biblioref">Razavi, Gharipour, and Gharipour 2020</a>)</span>; anxiety <span class="citation" data-cites="jacobsonDigitalBiomarkersAnxiety2022">(<a href="#ref-jacobsonDigitalBiomarkersAnxiety2022" role="doc-biblioref">Jacobson and Bhattacharya 2022</a>)</span>), cognitive processes (craving <span class="citation" data-cites="epsteinPredictionStressDrug2020 dumortierClassifyingSmokingUrges2016">(<a href="#ref-epsteinPredictionStressDrug2020" role="doc-biblioref">Epstein et al. 2020</a>; <a href="#ref-dumortierClassifyingSmokingUrges2016" role="doc-biblioref">Dumortier et al. 2016</a>)</span>; suicidal thoughts <span class="citation" data-cites="czyzPredictingShorttermSuicidal2023">(<a href="#ref-czyzPredictingShorttermSuicidal2023" role="doc-biblioref">Czyz et al. 2023</a>)</span>), and even future mental health diagnoses (<span class="citation" data-cites="horwitzIntensiveLongitudinalAssessment2024">Horwitz et al. (<a href="#ref-horwitzIntensiveLongitudinalAssessment2024" role="doc-biblioref">2024</a>)</span>) can be predicted with high accuracy and temporal precision from personal sensing data.</p>
+<p>Many mental health disorders, like substance use disorders, depression, and schizophrenia, are chronic conditions. After initial treatment and symptom reduction, individuals must continue to monitor their symptoms. Machine learning models can help individuals self-monitor their risk for risk for symptom-relapse and provide information about the top features contributing to their risk.</p>
+<p>The existing successful prediction models have almost exclusively relied on ecological momentary assessment (EMA) as the primary personal sensing data collection method. EMA is…</p>
+<p>EMA offers insight into known risk-relevant feelings, thoughts and behaviors. As such it is not surprising that it has been demonstrated to be highly predictive of lapse.</p>
+<p>EMA items are also often easily mapped on to support recommendations and targets for interventions. For example, in the relapse prevention model there are established tools and clinical recommendations for coping with strong cravings, stressful situations, and risky situations.</p>
+<p>Typically these models rely on densely sampled EMA (e.g.&nbsp;4 times daily). While it appears frequent EMA sampling can be sustainable for discrete sampling periods (e.g.&nbsp;1-3 months) <span class="citation" data-cites="wyantAcceptabilityPersonalSensing2023 jonesComplianceEcologicalMomentary2019">(<a href="#ref-wyantAcceptabilityPersonalSensing2023" role="doc-biblioref">Wyant et al. 2023</a>; <a href="#ref-jonesComplianceEcologicalMomentary2019" role="doc-biblioref">Jones et al. 2019</a>)</span>. It is less clear whether such sampling rates can be maintained indefinitely (as is the case for lapse monitoring, where a lapse can occur at any point in one’s recovery and recovery is considered to be a dynamic and long term path).</p>
+<p>For example, frequent prompts each day could become burdensome and engagement becomes sparse. Similarly individuals could become bored with the repetitive nature of questions leading to careless or automatic responding.</p>
+<p><span class="citation" data-cites="wyantMachineLearningModels2024">Wyant et al. (<a href="#ref-wyantMachineLearningModels2024" role="doc-biblioref">2024</a>)</span> have developed a machine learning model that can predict alcohol lapse risk using 4x daily EMA.</p>
+<p>We seek to apply a precision medicine approach to EMA sampling so that individuals are only prompted to complete an EMA analysis when the information is needed to for accurate lapse predictions.</p>
+<p>Specifically we ran a stimulation study that…</p>
+</section>
+<section id="methods" class="level1">
+<h1>Methods</h1>
+<section id="data-analytic-strategy" class="level2">
+<h2 class="anchored" data-anchor-id="data-analytic-strategy">Data Analytic Strategy</h2>
+<p>Models were run on an NVIDIA GeForce RTX 3090. <!--lets talk about what this is and if its important to include. If we keep it maybe add a sentence about why it was important to the analyses.--></p>
+<!--Should we include a sentence saying models were trained and evaluated using Python (Version #) and list any major packages used?-->
+<section id="model-architecture" class="level3">
+<h3 class="anchored" data-anchor-id="model-architecture">Model Architecture</h3>
+<p>We formulate the survey design problem as offline reinforcement learning (RL). Specifically, we model the interaction with each participant as an episode. Our goal is to design a survey plan that maximizes the expected cumulative rewards (and minimize penalties) over all participants during the entire episodes. That is, we consider each participant as a new environment instantiated out of <span class="math inline">\(N\)</span> environments; each environment is simulated based on the offline survey data collected in.</p>
+<p>In each episode with a participant, at each <span class="math inline">\(t^{th}\)</span> time-step, we either ask (1) whether or not to reveal the survey, or (2) to predict the next 24-hour window lapse. When we get the next survey <span class="math inline">\(X_t\)</span> from the participant (the former), we choose a binary action at deciding whether to reveal the survey or not; that is, we do not observe the survey ot = 0 without penalty if at = 0, and observe the received survey ot = Xt if at = 1, with a penalty depending on penalty levels. This penalty level is a control factor that balances the survey frequency and the prediction accuracy. If the environment asks to predict the next 24-hour window lapse event yt (the latter), an agent does not get any observation, only getting a hidden reward/penalty depending on whether the prediction is correct. <!--finish updating math syntax - see https://qmd4sci.njtierney.com/math.html--></p>
+<p>More specifically, our training pipeline can be described as consisting of three networks (summarizer network, policy network, prediction network; <a href="#fig-method" class="quarto-xref">Figure&nbsp;1</a>).</p>
+<div id="cell-fig-method" class="cell">
+<div class="cell-output-display">
+<div id="fig-method" class="quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-method-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<a href="figures/methods.png" class="lightbox" data-gallery="quarto-lightbox-gallery-1" title="Figure&nbsp;1: Architecture for two-phase training."><img src="figures/methods.png" class="img-fluid figure-img" width="211"></a>
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-method-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;1: Architecture for two-phase training.
+</figcaption>
+</figure>
+</div>
+</div>
+<a class="quarto-notebook-link" id="nblink-1" href="index-preview.html#cell-fig-method">Source: Article Notebook</a></div>
+<section id="summarizer-network" class="level4">
+<h4 class="anchored" data-anchor-id="summarizer-network">1. Summarizer Network</h4>
+<!--I'm not sure what a summarizer network is. Maybe explain it in a few sentences.-->
+<p>Our default configuration employs transformer architectures for the summarizing model. For implementing the transformer model, we adhere to the minimal implementation of NanoGPT’s standard framework1. We use an Embedding layer for discrete actions. For the policy network, we employ the soft actor-critic method for discrete actions (SACD). We use the base two-layer fully-connected architecture for both actor and critic networks. The lapse prediction network uses a single Gated Recurrent Unit (GRU) network. <!--Move this to prediction network section?--></p>
+</section>
+<section id="policy-network" class="level4">
+<h4 class="anchored" data-anchor-id="policy-network">2. Policy Network</h4>
+<p>In this phase, the goal is to learn a survey policy that maximizes the cumulative returns – the sum of all rewards and penalties – averaged over all participants. The policy takes all 25 k-step previous observations, which we call a historical context or simply history, and decides an action to take. We let k = 25 in our experiments.</p>
+<p>New trajectories are generated with φ and the current policy π, which takes a summary statistics φ(ht) as an input and outputs the next action. π is updated to maximize the long-term returns of the system. <!--update math notation--></p>
+<!--Does this make sense to put here?-->
+<p>We considered four penalty levels (LV) that penalized the model for each survey observation shown: -.02, -.05, -.08, and -.12. Models also learned from penalties and rewards related to the accuracy of their predicted lapses. Models were rewarded .05 or .03 for correctly labeling a lapse or no lapse, respectively. Models were penalized -.2 or -1.2 for incorrectly labeling a lapse or no lapse, respectively. <!--How did you arrive at these reward/penalty values? Were they randomly selected?--></p>
+<!--Add Partially Observed Markov Decision Processes and Objective Formulation and Algorithm 1 here?-->
+</section>
+<section id="prediction-network" class="level4">
+<h4 class="anchored" data-anchor-id="prediction-network">3. Prediction Network</h4>
+<p>Predictions were made into 24-hour windows (i.e., the probability of a lapse in the next 24 hours). The first prediction window for each participant started 24 hours from midnight on their study start date. Subsequent prediction window start times for each participant repeatedly rolled forward hour-by-hour until the end of their study participation.</p>
+<p>The start and end date/time of past drinking episodes were reported on the first EMA item. A prediction window was labeled lapse if the start date/hour of any drinking episode fell within that window. A window was labeled no lapse if no alcohol use occurred within that window +/- 24 hours. If no alcohol use occurred within the window but did occur within 24 hours of the start or end of the window, the window was excluded. We ended up with a total of 274,179 labels.</p>
+<p>We used 3 repeats of 10-fold cross-validation to evaluate our models with auROC. auROC indexes the probability that the model will predict a higher score for a randomly selected positive case (lapse) relative to a randomly selected negative case (no lapse). We used grouped cross-validation to assign all data from a participant as either held-in or held-out to avoid bias introduced when predicting a participant’s data from their own data.</p>
+<p>The truncated k-step history ht = (ot−k, at−k, …, ot) is input into the history summarization model φ(·), yielding summary statistics φ(ht). Then, this summary statistics is fed into the prediction network to predict the next lapse label. The sequence model φ is updated to minimize the prediction loss in this phase. <!--Need to update mathematical notation--></p>
+</section>
+</section>
+<section id="model-evaluation" class="level3">
+<h3 class="anchored" data-anchor-id="model-evaluation">Model Evaluation</h3>
+<section id="bayesian-model" class="level4">
+<h4 class="anchored" data-anchor-id="bayesian-model">Bayesian Model</h4>
+<p>We used a Bayesian hierarchical generalized linear model to estimate the posterior probability distributions and 95% Bayesian credible intervals (CIs) from the 30 held-out test sets for our five best models (no penalty, Lv1, Lv2, Lv3, and Lv4). We used the default weakly informative priors. We set two random intercepts to account for our resampling method: one for the repeat, and another for the fold nested within repeat.</p>
+<p>From the Bayesian model we obtained the posterior distribution (transformed back from logit) and Bayeisan CIs for auROCs all five models. To evaluate our models’ overall performance we report the median posterior probability for auROC and Bayesian CIs. This represents our best estimate for the magnitude of the auROC parameter for each model.</p>
+<p>We then conducted Bayesian model comparisons to determine the probability that the penalized models’ performances differed systematically from the baseline (no penalty) model. We also report the precise posterior probability for the difference in auROCs and the 95% Bayesian CIs for these comparisons.</p>
+</section>
+</section>
+</section>
+<section id="results" class="level2">
+<h2 class="anchored" data-anchor-id="results">Results</h2>
+<section id="participants" class="level3">
+<h3 class="anchored" data-anchor-id="participants">Participants</h3>
+<p><em>Kendra will characterize sample of participants here</em></p>
+</section>
+<section id="ema-adherence-and-sampling-frequency" class="level3">
+<h3 class="anchored" data-anchor-id="ema-adherence-and-sampling-frequency">EMA Adherence and Sampling Frequency</h3>
+<p>Participants on average completed 3.1 (SD=0.6) of the 4 EMAs each day (78.4% adherence overall). Across the twelve weeks on study, EMA adherence ranged from 75.3% to 86.8%.</p>
+<p>The baseline (no penalty) model used all available EMA observations for all participants (proportion of EMAs used = 1.0). As penalties for revealing an EMA observation became higher, overall sampling frequency for EMA observations decreased. The median proportion of EMAs used in the penalized models were .41 (range = .24 - .56), .24 (range = .16 - .34), .12 (range .03 - .20), and .04 (range = 0 - .10) for Lv1, Lv2, Lv3, and Lv4 respectively.</p>
+<p>Figure <a href="#fig-ema" class="quarto-xref">Figure&nbsp;2</a> presents histograms that display the distribution of the proportion of EMA observations revealed for each participant.</p>
+<!-- note these plots depict 3 proportions for each subid - 1 for each repeat-->
+<div id="cell-fig-ema" class="cell">
+<div class="cell-output-display">
+<div id="fig-ema" class="quarto-float quarto-figure quarto-figure-center anchored" width="672">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-ema-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<a href="index_files/figure-html/fig-ema-1.png" class="lightbox" data-gallery="quarto-lightbox-gallery-2" title="Figure&nbsp;2: "><img src="index_files/figure-html/fig-ema-1.png" id="fig-ema" class="img-fluid figure-img" width="672"></a>
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig quarto-uncaptioned" id="fig-ema-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;2
+</figcaption>
+</figure>
+</div>
+</div>
+</div>
+<p>There doesn’t appear to be a relationship between lapse and proportion of EMA surveys revealed.</p>
+<div class="cell">
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><a href="index_files/figure-html/unnamed-chunk-4-1.png" class="lightbox" data-gallery="quarto-lightbox-gallery-3"><img src="index_files/figure-html/unnamed-chunk-4-1.png" class="img-fluid figure-img" width="672"></a></p>
+</figure>
+</div>
+</div>
+</div>
+</section>
+<section id="model-evaluation-1" class="level3">
+<h3 class="anchored" data-anchor-id="model-evaluation-1">Model Evaluation</h3>
+<p>Raw median auROCs for xgboost and five neural net models are presented below.</p>
+<div class="cell">
+<div class="cell-output cell-output-stdout">
+<pre><code>Rows: 1
+Columns: 6
+$ xgboost &lt;dbl&gt; 0.895
+$ nn_full &lt;dbl&gt; 0.88
+$ nn_lv1  &lt;dbl&gt; 0.87
+$ nn_lv2  &lt;dbl&gt; 0.855
+$ nn_lv3  &lt;dbl&gt; 0.835
+$ nn_lv4  &lt;dbl&gt; 0.775</code></pre>
+</div>
+</div>
+<p>Median posterior probabilities and 95% Bayesian credible intervals for auROC for the XGBoost and 5 neural network models are presented in the table below.</p>
+<div class="cell">
+<div class="cell-output-display">
+<table class="caption-top table table-sm table-striped small" data-quarto-postprocess="true">
+<thead>
+<tr class="header">
+<th style="text-align: left;" data-quarto-table-cell-role="th">model</th>
+<th style="text-align: right;" data-quarto-table-cell-role="th">pp_median</th>
+<th style="text-align: right;" data-quarto-table-cell-role="th">pp_lower</th>
+<th style="text-align: right;" data-quarto-table-cell-role="th">pp_upper</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;">xgboost</td>
+<td style="text-align: right;">0.884</td>
+<td style="text-align: right;">0.863</td>
+<td style="text-align: right;">0.902</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">no penalty</td>
+<td style="text-align: right;">0.867</td>
+<td style="text-align: right;">0.843</td>
+<td style="text-align: right;">0.887</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Lv1</td>
+<td style="text-align: right;">0.865</td>
+<td style="text-align: right;">0.840</td>
+<td style="text-align: right;">0.886</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Lv2</td>
+<td style="text-align: right;">0.856</td>
+<td style="text-align: right;">0.831</td>
+<td style="text-align: right;">0.878</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Lv3</td>
+<td style="text-align: right;">0.832</td>
+<td style="text-align: right;">0.803</td>
+<td style="text-align: right;">0.856</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Lv4</td>
+<td style="text-align: right;">0.776</td>
+<td style="text-align: right;">0.739</td>
+<td style="text-align: right;">0.806</td>
+</tr>
+</tbody>
+</table>
+
+
+</div>
+</div>
+<p>Potential main figure</p>
+<div class="cell">
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><a href="index_files/figure-html/unnamed-chunk-7-1.png" class="lightbox" data-gallery="quarto-lightbox-gallery-4"><img src="index_files/figure-html/unnamed-chunk-7-1.png" class="img-fluid figure-img" width="672"></a></p>
+</figure>
+</div>
+</div>
+</div>
+<p>Histograms of posterior probabilities for auROC for the 5 neural network models are presented below.</p>
+<div class="cell">
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><a href="index_files/figure-html/unnamed-chunk-8-1.png" class="lightbox" data-gallery="quarto-lightbox-gallery-5"><img src="index_files/figure-html/unnamed-chunk-8-1.png" class="img-fluid figure-img" width="672"></a></p>
+</figure>
+</div>
+</div>
+</div>
+</section>
+<section id="model-comparisons" class="level3">
+<h3 class="anchored" data-anchor-id="model-comparisons">Model Comparisons</h3>
+<p><em>Kendra will add a description of the model comparisons below once I see how we are referring to the different models. Essentially these comparisons suggest that we can go down to using about 40% of surveys (LV1) without any difference in model performance. It appears that the model does perform differently when going down to 25% of surveys (LV2) but this is not likely a clinically meaningful drop in performance. LV3 performs worse than LV1, but again it is not likely a clinically meaningful drop.</em></p>
+<div class="cell">
+<div class="cell-output-display">
+<table class="caption-top table table-sm table-striped small" data-quarto-postprocess="true">
+<thead>
+<tr class="header">
+<th style="text-align: left;" data-quarto-table-cell-role="th">contrast</th>
+<th style="text-align: right;" data-quarto-table-cell-role="th">probability</th>
+<th style="text-align: right;" data-quarto-table-cell-role="th">mean</th>
+<th style="text-align: right;" data-quarto-table-cell-role="th">lower</th>
+<th style="text-align: right;" data-quarto-table-cell-role="th">upper</th>
+<th style="text-align: right;" data-quarto-table-cell-role="th">median</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;">nn_full vs. nn_lv1</td>
+<td style="text-align: right;">0.666</td>
+<td style="text-align: right;">0.002</td>
+<td style="text-align: right;">-0.006</td>
+<td style="text-align: right;">0.011</td>
+<td style="text-align: right;">0.002</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">nn_full vs. nn_lv2</td>
+<td style="text-align: right;">0.977</td>
+<td style="text-align: right;">0.011</td>
+<td style="text-align: right;">0.002</td>
+<td style="text-align: right;">0.019</td>
+<td style="text-align: right;">0.011</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">nn_full vs. nn_lv3</td>
+<td style="text-align: right;">1.000</td>
+<td style="text-align: right;">0.035</td>
+<td style="text-align: right;">0.025</td>
+<td style="text-align: right;">0.045</td>
+<td style="text-align: right;">0.035</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">nn_full vs. nn_lv4</td>
+<td style="text-align: right;">1.000</td>
+<td style="text-align: right;">0.091</td>
+<td style="text-align: right;">0.078</td>
+<td style="text-align: right;">0.105</td>
+<td style="text-align: right;">0.091</td>
+</tr>
+</tbody>
+</table>
+
+
+</div>
+</div>
+
+</section>
+</section>
+</section>
+
+<div id="quarto-appendix" class="default"><section class="quarto-appendix-contents" role="doc-bibliography" id="quarto-bibliography"><h2 class="anchored quarto-appendix-heading">References</h2><div id="refs" class="references csl-bib-body hanging-indent" data-entry-spacing="0" role="list">
+<div id="ref-baeLeveragingMobilePhone2023" class="csl-entry" role="listitem">
+Bae, Sang Won, Brian Suffoletto, Tongze Zhang, Tammy Chung, Melik Ozolcer, Mohammad Rahul Islam, and Anind Dey. 2023. <span>“Leveraging <span>Mobile Phone Sensors</span>, <span>Machine Learning</span> and <span>Explainable Artificial Intelligence</span> to <span>Predict Imminent Same-Day Binge Drinking Events</span> to <span>Support Just-In-Time Adaptive Interventions</span>: <span>A Feasibility Study</span>.”</span> <em>JMIR Formative Research</em>, February. <a href="https://doi.org/10.2196/39862">https://doi.org/10.2196/39862</a>.
+</div>
+<div id="ref-baeMobilePhoneSensors2018" class="csl-entry" role="listitem">
+Bae, Sangwon, Tammy Chung, Denzil Ferreira, Anind K. Dey, and Brian Suffoletto. 2018. <span>“Mobile Phone Sensors and Supervised Machine Learning to Identify Alcohol Use Events in Young Adults: <span>Implications</span> for Just-in-Time Adaptive Interventions.”</span> <em>Addictive Behaviors</em> 83 (August): 42–47. <a href="https://doi.org/10.1016/j.addbeh.2017.11.039">https://doi.org/10.1016/j.addbeh.2017.11.039</a>.
+</div>
+<div id="ref-businelleUsingIntensiveLongitudinal2016" class="csl-entry" role="listitem">
+Businelle, Michael S, Ping Ma, Darla E Kendzor, Summer G Frank, David W Wetter, and Damon J Vidrine. 2016. <span>“Using <span>Intensive Longitudinal Data Collected</span> via <span>Mobile Phone</span> to <span>Detect Imminent Lapse</span> in <span>Smokers Undergoing</span> a <span>Scheduled Quit Attempt</span>.”</span> <em>Journal of Medical Internet Research</em> 18 (10): e275. <a href="https://doi.org/10/f9bvfc">https://doi.org/10/f9bvfc</a>.
+</div>
+<div id="ref-chihPredictiveModelingAddiction2014" class="csl-entry" role="listitem">
+Chih, Ming-Yuan, Timothy Patton, Fiona M. McTavish, Andrew J. Isham, Chris L. Judkins-Fisher, Amy K. Atwood, and David H. Gustafson. 2014. <span>“Predictive Modeling of Addiction Lapses in a Mobile Health Application.”</span> <em>Journal of Substance Abuse Treatment</em> 46 (1): 29–35. <a href="https://doi.org/10.1016/j.jsat.2013.08.004">https://doi.org/10.1016/j.jsat.2013.08.004</a>.
+</div>
+<div id="ref-czyzPredictingShorttermSuicidal2023" class="csl-entry" role="listitem">
+Czyz, E. K., H. J. Koo, N. Al-Dajani, C. A. King, and I. Nahum-Shani. 2023. <span>“Predicting Short-Term Suicidal Thoughts in Adolescents Using Machine Learning: Developing Decision Tools to Identify Daily Level Risk After Hospitalization.”</span> <em>Psychological Medicine</em> 53 (7): 2982–91. <a href="https://doi.org/10.1017/S0033291721005006">https://doi.org/10.1017/S0033291721005006</a>.
+</div>
+<div id="ref-dumortierClassifyingSmokingUrges2016" class="csl-entry" role="listitem">
+Dumortier, Antoine, Ellen Beckjord, Saul Shiffman, and Ervin Sejdić. 2016. <span>“Classifying Smoking Urges via Machine Learning.”</span> <em>Computer Methods and Programs in Biomedicine</em> 137 (December): 203–13. <a href="https://doi.org/10.1016/j.cmpb.2016.09.016">https://doi.org/10.1016/j.cmpb.2016.09.016</a>.
+</div>
+<div id="ref-epsteinPredictionStressDrug2020" class="csl-entry" role="listitem">
+Epstein, David H., Matthew Tyburski, William J. Kowalczyk, Albert J. Burgess-Hull, Karran A. Phillips, Brenda L. Curtis, and Kenzie L. Preston. 2020. <span>“Prediction of Stress and Drug Craving Ninety Minutes in the Future with Passively Collected <span>GPS</span> Data.”</span> <em>Npj Digital Medicine</em> 3 (1): 26. <a href="https://doi.org/10/ghqvcw">https://doi.org/10/ghqvcw</a>.
+</div>
+<div id="ref-hebertPredictingFirstSmoking2021" class="csl-entry" role="listitem">
+Hébert, Emily T., Robert Suchting, Chaelin K. Ra, Adam C. Alexander, Darla E. Kendzor, Damon J. Vidrine, and Michael S. Businelle. 2021. <span>“Predicting the First Smoking Lapse During a Quit Attempt: <span>A</span> Machine Learning Approach.”</span> <em>Drug and Alcohol Dependence</em> 218 (January): 108340. <a href="https://doi.org/10.1016/j.drugalcdep.2020.108340">https://doi.org/10.1016/j.drugalcdep.2020.108340</a>.
+</div>
+<div id="ref-horwitzIntensiveLongitudinalAssessment2024" class="csl-entry" role="listitem">
+Horwitz, Adam, Kaitlyn McCarthy, Stacey L. House, Francesca L. Beaudoin, Xinming An, Thomas C. Neylan, Gari D. Clifford, et al. 2024. <span>“Intensive Longitudinal Assessment Following Index Trauma to Predict Development of <span>PTSD</span> Using Machine Learning.”</span> <em>Journal of Anxiety Disorders</em> 104 (June): 102876. <a href="https://doi.org/10.1016/j.janxdis.2024.102876">https://doi.org/10.1016/j.janxdis.2024.102876</a>.
+</div>
+<div id="ref-jacobsonDigitalBiomarkersAnxiety2022" class="csl-entry" role="listitem">
+Jacobson, Nicholas C., and Sukanya Bhattacharya. 2022. <span>“Digital Biomarkers of Anxiety Disorder Symptom Changes: <span>Personalized</span> Deep Learning Models Using Smartphone Sensors Accurately Predict Anxiety Symptoms from Ecological Momentary Assessments.”</span> <em>Behaviour Research and Therapy</em> 149 (February): 104013. <a href="https://doi.org/10.1016/j.brat.2021.104013">https://doi.org/10.1016/j.brat.2021.104013</a>.
+</div>
+<div id="ref-jacobsonPassiveSensingPrediction2020" class="csl-entry" role="listitem">
+Jacobson, Nicholas C., and Yeon Joo Chung. 2020. <span>“Passive <span>Sensing</span> of <span>Prediction</span> of <span>Moment-To-Moment Depressed Mood</span> Among <span>Undergraduates</span> with <span>Clinical Levels</span> of <span>Depression Sample Using Smartphones</span>.”</span> <em>Sensors</em> 20 (12): 3572. <a href="https://doi.org/10.3390/s20123572">https://doi.org/10.3390/s20123572</a>.
+</div>
+<div id="ref-jonesComplianceEcologicalMomentary2019" class="csl-entry" role="listitem">
+Jones, Andrew, Danielle Remmerswaal, Ilse Verveer, Eric Robinson, Ingmar H. A. Franken, Cheng K. Fred Wen, and Matt Field. 2019. <span>“Compliance with Ecological Momentary Assessment Protocols in Substance Users: A Meta-Analysis.”</span> <em>Addiction (Abingdon, England)</em> 114 (4): 609–19. <a href="https://doi.org/10/gfsjzg">https://doi.org/10/gfsjzg</a>.
+</div>
+<div id="ref-kimDepressionPredictionUsing2019" class="csl-entry" role="listitem">
+Kim, Heejung, SungHee Lee, SangEun Lee, Soyun Hong, HeeJae Kang, and Namhee Kim. 2019. <span>“Depression <span>Prediction</span> by <span>Using Ecological Momentary Assessment</span>, <span>Actiwatch Data</span>, and <span>Machine Learning</span>: <span>Observational Study</span> on <span>Older Adults Living Alone</span>.”</span> <em>JMIR mHealth and uHealth</em> 7 (10): e14149. <a href="https://doi.org/10.2196/14149">https://doi.org/10.2196/14149</a>.
+</div>
+<div id="ref-mohrPersonalSensingUnderstanding2017" class="csl-entry" role="listitem">
+Mohr, David C., Mi Zhang, and Stephen M. Schueller. 2017. <span>“Personal <span>Sensing</span>: <span>Understanding Mental Health Using Ubiquitous Sensors</span> and <span>Machine Learning</span>.”</span> <em>Annual Review of Clinical Psychology</em> 13 (1): 23–47. <a href="https://doi.org/10.1146/annurev-clinpsy-032816-044949">https://doi.org/10.1146/annurev-clinpsy-032816-044949</a>.
+</div>
+<div id="ref-razaviDepressionScreeningUsing2020" class="csl-entry" role="listitem">
+Razavi, Rouzbeh, Amin Gharipour, and Mojgan Gharipour. 2020. <span>“Depression Screening Using Mobile Phone Usage Metadata: A Machine Learning Approach.”</span> <em>Journal of the American Medical Informatics Association</em> 27 (4): 522–30. <a href="https://doi.org/10.1093/jamia/ocz221">https://doi.org/10.1093/jamia/ocz221</a>.
+</div>
+<div id="ref-robertsUsingMachineLearning2022" class="csl-entry" role="listitem">
+Roberts, Walter, Yize Zhao, Terril Verplaetse, Kelly E. Moore, MacKenzie R. Peltier, Catherine Burke, Yasmin Zakiniaeiz, and Sherry McKee. 2022. <span>“Using Machine Learning to Predict Heavy Drinking During Outpatient Alcohol Treatment.”</span> <em>Alcohol: Clinical and Experimental Research</em> 46 (4): 657–66. <a href="https://doi.org/10.1111/acer.14802">https://doi.org/10.1111/acer.14802</a>.
+</div>
+<div id="ref-waltersUsingMachineLearning2021" class="csl-entry" role="listitem">
+Walters, Scott T., Michael S. Businelle, Robert Suchting, Xiaoyin Li, Emily T. Hébert, and Eun-Young Mun. 2021. <span>“Using Machine Learning to Identify Predictors of Imminent Drinking and Create Tailored Messages for at-Risk Drinkers Experiencing Homelessness.”</span> <em>Journal of Substance Abuse Treatment</em> 127 (August): 108417. <a href="https://doi.org/10.1016/j.jsat.2021.108417">https://doi.org/10.1016/j.jsat.2021.108417</a>.
+</div>
+<div id="ref-wyantLaggedPredictionsNextinprep" class="csl-entry" role="listitem">
+Wyant, Kendra, Gaylen Fronk, Jiachen Yu, and John Curtin. in prep. <span>“Lagged <span>Predictions</span> of <span>Next Day Alcohol Use</span> for <span>Adaptive</span> and <span>Personalized Continuing Care</span>,”</span> in prep.
+</div>
+<div id="ref-wyantAcceptabilityPersonalSensing2023" class="csl-entry" role="listitem">
+Wyant, Kendra, Hannah Moshontz, Stephanie B. Ward, Gaylen E. Fronk, and John J. Curtin. 2023. <span>“Acceptability of <span>Personal Sensing Among People With Alcohol Use Disorder</span>: <span>Observational Study</span>.”</span> <em>JMIR mHealth and uHealth</em> 11 (1): e41833. <a href="https://doi.org/10.2196/41833">https://doi.org/10.2196/41833</a>.
+</div>
+<div id="ref-wyantMachineLearningModels2024" class="csl-entry" role="listitem">
+Wyant, Kendra, Sarah J. Sant’Ana, Gaylen E. Fronk, and John J. Curtin. 2024. <span>“Machine Learning Models for Temporally Precise Lapse Prediction in Alcohol Use Disorder.”</span> <em>Journal of Psychopathology and Clinical Science</em> 133 (7): 527–40. <a href="https://doi.org/10.1037/abn0000901">https://doi.org/10.1037/abn0000901</a>.
+</div>
+</div></section></div></main>
+<!-- /main column -->
+<script id="quarto-html-after-body" type="application/javascript">
+window.document.addEventListener("DOMContentLoaded", function (event) {
+  const toggleBodyColorMode = (bsSheetEl) => {
+    const mode = bsSheetEl.getAttribute("data-mode");
+    const bodyEl = window.document.querySelector("body");
+    if (mode === "dark") {
+      bodyEl.classList.add("quarto-dark");
+      bodyEl.classList.remove("quarto-light");
+    } else {
+      bodyEl.classList.add("quarto-light");
+      bodyEl.classList.remove("quarto-dark");
+    }
+  }
+  const toggleBodyColorPrimary = () => {
+    const bsSheetEl = window.document.querySelector("link#quarto-bootstrap");
+    if (bsSheetEl) {
+      toggleBodyColorMode(bsSheetEl);
+    }
+  }
+  toggleBodyColorPrimary();  
+  const icon = "";
+  const anchorJS = new window.AnchorJS();
+  anchorJS.options = {
+    placement: 'right',
+    icon: icon
+  };
+  anchorJS.add('.anchored');
+  const isCodeAnnotation = (el) => {
+    for (const clz of el.classList) {
+      if (clz.startsWith('code-annotation-')) {                     
+        return true;
+      }
+    }
+    return false;
+  }
+  const onCopySuccess = function(e) {
+    // button target
+    const button = e.trigger;
+    // don't keep focus
+    button.blur();
+    // flash "checked"
+    button.classList.add('code-copy-button-checked');
+    var currentTitle = button.getAttribute("title");
+    button.setAttribute("title", "Copied!");
+    let tooltip;
+    if (window.bootstrap) {
+      button.setAttribute("data-bs-toggle", "tooltip");
+      button.setAttribute("data-bs-placement", "left");
+      button.setAttribute("data-bs-title", "Copied!");
+      tooltip = new bootstrap.Tooltip(button, 
+        { trigger: "manual", 
+          customClass: "code-copy-button-tooltip",
+          offset: [0, -8]});
+      tooltip.show();    
+    }
+    setTimeout(function() {
+      if (tooltip) {
+        tooltip.hide();
+        button.removeAttribute("data-bs-title");
+        button.removeAttribute("data-bs-toggle");
+        button.removeAttribute("data-bs-placement");
+      }
+      button.setAttribute("title", currentTitle);
+      button.classList.remove('code-copy-button-checked');
+    }, 1000);
+    // clear code selection
+    e.clearSelection();
+  }
+  const getTextToCopy = function(trigger) {
+      const codeEl = trigger.previousElementSibling.cloneNode(true);
+      for (const childEl of codeEl.children) {
+        if (isCodeAnnotation(childEl)) {
+          childEl.remove();
+        }
+      }
+      return codeEl.innerText;
+  }
+  const clipboard = new window.ClipboardJS('.code-copy-button:not([data-in-quarto-modal])', {
+    text: getTextToCopy
+  });
+  clipboard.on('success', onCopySuccess);
+  if (window.document.getElementById('quarto-embedded-source-code-modal')) {
+    const clipboardModal = new window.ClipboardJS('.code-copy-button[data-in-quarto-modal]', {
+      text: getTextToCopy,
+      container: window.document.getElementById('quarto-embedded-source-code-modal')
+    });
+    clipboardModal.on('success', onCopySuccess);
+  }
+    var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
+    var mailtoRegex = new RegExp(/^mailto:/);
+      var filterRegex = new RegExp('/' + window.location.host + '/');
+    var isInternal = (href) => {
+        return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
+    }
+    // Inspect non-navigation links and adorn them if external
+ 	var links = window.document.querySelectorAll('a[href]:not(.nav-link):not(.navbar-brand):not(.toc-action):not(.sidebar-link):not(.sidebar-item-toggle):not(.pagination-link):not(.no-external):not([aria-hidden]):not(.dropdown-item):not(.quarto-navigation-tool):not(.about-link)');
+    for (var i=0; i<links.length; i++) {
+      const link = links[i];
+      if (!isInternal(link.href)) {
+        // undo the damage that might have been done by quarto-nav.js in the case of
+        // links that we want to consider external
+        if (link.dataset.originalHref !== undefined) {
+          link.href = link.dataset.originalHref;
+        }
+      }
+    }
+  function tippyHover(el, contentFn, onTriggerFn, onUntriggerFn) {
+    const config = {
+      allowHTML: true,
+      maxWidth: 500,
+      delay: 100,
+      arrow: false,
+      appendTo: function(el) {
+          return el.parentElement;
+      },
+      interactive: true,
+      interactiveBorder: 10,
+      theme: 'quarto',
+      placement: 'bottom-start',
+    };
+    if (contentFn) {
+      config.content = contentFn;
+    }
+    if (onTriggerFn) {
+      config.onTrigger = onTriggerFn;
+    }
+    if (onUntriggerFn) {
+      config.onUntrigger = onUntriggerFn;
+    }
+    window.tippy(el, config); 
+  }
+  const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+  for (var i=0; i<noterefs.length; i++) {
+    const ref = noterefs[i];
+    tippyHover(ref, function() {
+      // use id or data attribute instead here
+      let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+      try { href = new URL(href).hash; } catch {}
+      const id = href.replace(/^#\/?/, "");
+      const note = window.document.getElementById(id);
+      if (note) {
+        return note.innerHTML;
+      } else {
+        return "";
+      }
+    });
+  }
+  const xrefs = window.document.querySelectorAll('a.quarto-xref');
+  const processXRef = (id, note) => {
+    // Strip column container classes
+    const stripColumnClz = (el) => {
+      el.classList.remove("page-full", "page-columns");
+      if (el.children) {
+        for (const child of el.children) {
+          stripColumnClz(child);
+        }
+      }
+    }
+    stripColumnClz(note)
+    if (id === null || id.startsWith('sec-')) {
+      // Special case sections, only their first couple elements
+      const container = document.createElement("div");
+      if (note.children && note.children.length > 2) {
+        container.appendChild(note.children[0].cloneNode(true));
+        for (let i = 1; i < note.children.length; i++) {
+          const child = note.children[i];
+          if (child.tagName === "P" && child.innerText === "") {
+            continue;
+          } else {
+            container.appendChild(child.cloneNode(true));
+            break;
+          }
+        }
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(container);
+        }
+        return container.innerHTML
+      } else {
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(note);
+        }
+        return note.innerHTML;
+      }
+    } else {
+      // Remove any anchor links if they are present
+      const anchorLink = note.querySelector('a.anchorjs-link');
+      if (anchorLink) {
+        anchorLink.remove();
+      }
+      if (window.Quarto?.typesetMath) {
+        window.Quarto.typesetMath(note);
+      }
+      if (note.classList.contains("callout")) {
+        return note.outerHTML;
+      } else {
+        return note.innerHTML;
+      }
+    }
+  }
+  for (var i=0; i<xrefs.length; i++) {
+    const xref = xrefs[i];
+    tippyHover(xref, undefined, function(instance) {
+      instance.disable();
+      let url = xref.getAttribute('href');
+      let hash = undefined; 
+      if (url.startsWith('#')) {
+        hash = url;
+      } else {
+        try { hash = new URL(url).hash; } catch {}
+      }
+      if (hash) {
+        const id = hash.replace(/^#\/?/, "");
+        const note = window.document.getElementById(id);
+        if (note !== null) {
+          try {
+            const html = processXRef(id, note.cloneNode(true));
+            instance.setContent(html);
+          } finally {
+            instance.enable();
+            instance.show();
+          }
+        } else {
+          // See if we can fetch this
+          fetch(url.split('#')[0])
+          .then(res => res.text())
+          .then(html => {
+            const parser = new DOMParser();
+            const htmlDoc = parser.parseFromString(html, "text/html");
+            const note = htmlDoc.getElementById(id);
+            if (note !== null) {
+              const html = processXRef(id, note);
+              instance.setContent(html);
+            } 
+          }).finally(() => {
+            instance.enable();
+            instance.show();
+          });
+        }
+      } else {
+        // See if we can fetch a full url (with no hash to target)
+        // This is a special case and we should probably do some content thinning / targeting
+        fetch(url)
+        .then(res => res.text())
+        .then(html => {
+          const parser = new DOMParser();
+          const htmlDoc = parser.parseFromString(html, "text/html");
+          const note = htmlDoc.querySelector('main.content');
+          if (note !== null) {
+            // This should only happen for chapter cross references
+            // (since there is no id in the URL)
+            // remove the first header
+            if (note.children.length > 0 && note.children[0].tagName === "HEADER") {
+              note.children[0].remove();
+            }
+            const html = processXRef(null, note);
+            instance.setContent(html);
+          } 
+        }).finally(() => {
+          instance.enable();
+          instance.show();
+        });
+      }
+    }, function(instance) {
+    });
+  }
+      let selectedAnnoteEl;
+      const selectorForAnnotation = ( cell, annotation) => {
+        let cellAttr = 'data-code-cell="' + cell + '"';
+        let lineAttr = 'data-code-annotation="' +  annotation + '"';
+        const selector = 'span[' + cellAttr + '][' + lineAttr + ']';
+        return selector;
+      }
+      const selectCodeLines = (annoteEl) => {
+        const doc = window.document;
+        const targetCell = annoteEl.getAttribute("data-target-cell");
+        const targetAnnotation = annoteEl.getAttribute("data-target-annotation");
+        const annoteSpan = window.document.querySelector(selectorForAnnotation(targetCell, targetAnnotation));
+        const lines = annoteSpan.getAttribute("data-code-lines").split(",");
+        const lineIds = lines.map((line) => {
+          return targetCell + "-" + line;
+        })
+        let top = null;
+        let height = null;
+        let parent = null;
+        if (lineIds.length > 0) {
+            //compute the position of the single el (top and bottom and make a div)
+            const el = window.document.getElementById(lineIds[0]);
+            top = el.offsetTop;
+            height = el.offsetHeight;
+            parent = el.parentElement.parentElement;
+          if (lineIds.length > 1) {
+            const lastEl = window.document.getElementById(lineIds[lineIds.length - 1]);
+            const bottom = lastEl.offsetTop + lastEl.offsetHeight;
+            height = bottom - top;
+          }
+          if (top !== null && height !== null && parent !== null) {
+            // cook up a div (if necessary) and position it 
+            let div = window.document.getElementById("code-annotation-line-highlight");
+            if (div === null) {
+              div = window.document.createElement("div");
+              div.setAttribute("id", "code-annotation-line-highlight");
+              div.style.position = 'absolute';
+              parent.appendChild(div);
+            }
+            div.style.top = top - 2 + "px";
+            div.style.height = height + 4 + "px";
+            div.style.left = 0;
+            let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
+            if (gutterDiv === null) {
+              gutterDiv = window.document.createElement("div");
+              gutterDiv.setAttribute("id", "code-annotation-line-highlight-gutter");
+              gutterDiv.style.position = 'absolute';
+              const codeCell = window.document.getElementById(targetCell);
+              const gutter = codeCell.querySelector('.code-annotation-gutter');
+              gutter.appendChild(gutterDiv);
+            }
+            gutterDiv.style.top = top - 2 + "px";
+            gutterDiv.style.height = height + 4 + "px";
+          }
+          selectedAnnoteEl = annoteEl;
+        }
+      };
+      const unselectCodeLines = () => {
+        const elementsIds = ["code-annotation-line-highlight", "code-annotation-line-highlight-gutter"];
+        elementsIds.forEach((elId) => {
+          const div = window.document.getElementById(elId);
+          if (div) {
+            div.remove();
+          }
+        });
+        selectedAnnoteEl = undefined;
+      };
+        // Handle positioning of the toggle
+    window.addEventListener(
+      "resize",
+      throttle(() => {
+        elRect = undefined;
+        if (selectedAnnoteEl) {
+          selectCodeLines(selectedAnnoteEl);
+        }
+      }, 10)
+    );
+    function throttle(fn, ms) {
+    let throttle = false;
+    let timer;
+      return (...args) => {
+        if(!throttle) { // first call gets through
+            fn.apply(this, args);
+            throttle = true;
+        } else { // all the others get throttled
+            if(timer) clearTimeout(timer); // cancel #2
+            timer = setTimeout(() => {
+              fn.apply(this, args);
+              timer = throttle = false;
+            }, ms);
+        }
+      };
+    }
+      // Attach click handler to the DT
+      const annoteDls = window.document.querySelectorAll('dt[data-target-cell]');
+      for (const annoteDlNode of annoteDls) {
+        annoteDlNode.addEventListener('click', (event) => {
+          const clickedEl = event.target;
+          if (clickedEl !== selectedAnnoteEl) {
+            unselectCodeLines();
+            const activeEl = window.document.querySelector('dt[data-target-cell].code-annotation-active');
+            if (activeEl) {
+              activeEl.classList.remove('code-annotation-active');
+            }
+            selectCodeLines(clickedEl);
+            clickedEl.classList.add('code-annotation-active');
+          } else {
+            // Unselect the line
+            unselectCodeLines();
+            clickedEl.classList.remove('code-annotation-active');
+          }
+        });
+      }
+  const findCites = (el) => {
+    const parentEl = el.parentElement;
+    if (parentEl) {
+      const cites = parentEl.dataset.cites;
+      if (cites) {
+        return {
+          el,
+          cites: cites.split(' ')
+        };
+      } else {
+        return findCites(el.parentElement)
+      }
+    } else {
+      return undefined;
+    }
+  };
+  var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+  for (var i=0; i<bibliorefs.length; i++) {
+    const ref = bibliorefs[i];
+    const citeInfo = findCites(ref);
+    if (citeInfo) {
+      tippyHover(citeInfo.el, function() {
+        var popup = window.document.createElement('div');
+        citeInfo.cites.forEach(function(cite) {
+          var citeDiv = window.document.createElement('div');
+          citeDiv.classList.add('hanging-indent');
+          citeDiv.classList.add('csl-entry');
+          var biblioDiv = window.document.getElementById('ref-' + cite);
+          if (biblioDiv) {
+            citeDiv.innerHTML = biblioDiv.innerHTML;
+          }
+          popup.appendChild(citeDiv);
+        });
+        return popup.innerHTML;
+      });
+    }
+  }
+});
+</script>
+</div> <!-- /content -->
+<script>var lightboxQuarto = GLightbox({"closeEffect":"zoom","descPosition":"bottom","loop":false,"openEffect":"zoom","selector":".lightbox"});
+(function() {
+  let previousOnload = window.onload;
+  window.onload = () => {
+    if (previousOnload) {
+      previousOnload();
+    }
+    lightboxQuarto.on('slide_before_load', (data) => {
+      const { slideIndex, slideNode, slideConfig, player, trigger } = data;
+      const href = trigger.getAttribute('href');
+      if (href !== null) {
+        const imgEl = window.document.querySelector(`a[href="${href}"] img`);
+        if (imgEl !== null) {
+          const srcAttr = imgEl.getAttribute("src");
+          if (srcAttr && srcAttr.startsWith("data:")) {
+            slideConfig.href = srcAttr;
+          }
+        }
+      } 
+    });
+  
+    lightboxQuarto.on('slide_after_load', (data) => {
+      const { slideIndex, slideNode, slideConfig, player, trigger } = data;
+      if (window.Quarto?.typesetMath) {
+        window.Quarto.typesetMath(slideNode);
+      }
+    });
+  
+  };
+  
+})();
+          </script>
+
+
+
+
+</body></html>
