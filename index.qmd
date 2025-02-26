@@ -1,15 +1,27 @@
 ---
-title: "Manuscript"
-author: "Kendra Wyant and Jeongyeol Kwon"
-date: "`r lubridate::today()`"
+title: Adaptive EMA Sampling for Alcohol Lapse Risk Prediction - A Reinforcement Learning Approach
+author:
+  - name: Jeongyeol Kwon 
+    corresponding: false
+    affiliations:
+      - Department of X, University of Wisconsin-Madison
+  - name: Kendra Wyant 
+    corresponding: false
+    affiliations:
+      - Department of Psychology, University of Wisconsin-Madison
+  - name: John J. Curtin 
+    corresponding: true
+    email: jjcurtin@wisc.edu
+    affiliations:
+      - Department of Psychology, University of Wisconsin-Madison 
+keywords:
+  - Substance use disorders
+  - Precision mental health 
+abstract: |
+  Abstract here.
+date: last-modified
 bibliography: references.bib
-output: 
-  html_document:
-    toc: true 
-    toc_depth: 4
-format:
-  html:
-    embed-resources: true
+number-sections: false 
 editor_options: 
   chunk_output_type: console
 ---
@@ -30,14 +42,26 @@ aucs <- read_csv(here("data/auc_3_x_10.csv"),
 posteriors <- read_csv(here("data/posteriors.csv"),
                        show_col_types = FALSE)
 pp_tibble <- read_csv(here("data/pp_perf_tibble.csv"),
-                       show_col_types = FALSE)
+                       show_col_types = FALSE) |> 
+  mutate(model = factor(model, 
+                        levels = c("xgboost", "nn_full", "nn_lv1", 
+                                   "nn_lv2", "nn_lv3", "nn_lv4"),
+                        labels = c("xgboost", "no penalty", "Lv1", 
+                                   "Lv2", "Lv3", "Lv4"))) 
 contrasts <- read_csv(here("data/contrast.csv"),
                       show_col_types = FALSE)
 freq <- read_csv(here("data/freq.csv"),
-                      show_col_types = FALSE) 
+                      show_col_types = FALSE) |> 
+  mutate(model = factor(model, 
+                        levels = c("full", "lv1", 
+                                   "lv2", "lv3", "lv4"),
+                        labels = c("no penalty", "Lv1", 
+                                   "Lv2", "Lv3", "Lv4")))
 lapses <- read_csv(here("data/lapses.csv"),
                       show_col_types = FALSE)
 ```
+
+
 
 
 
@@ -129,51 +153,50 @@ We used a Bayesian hierarchical generalized linear model to estimate the posteri
 
 From the Bayesian model we obtained the posterior distribution (transformed back from logit) and Bayeisan CIs for auROCs all five models. To evaluate our models’ overall performance we report the median posterior probability for auROC and Bayesian CIs. This represents our best estimate for the magnitude of the auROC parameter for each model. 
 
-We then conducted Bayesian model comparisons to determine the probability that the penalized models’ performances differed systematically from the full model. We also report the precise posterior probability for the difference in auROCs and the 95% Bayesian CIs for these comparisons.
+We then conducted Bayesian model comparisons to determine the probability that the penalized models’ performances differed systematically from the baseline (no penalty) model. We also report the precise posterior probability for the difference in auROCs and the 95% Bayesian CIs for these comparisons.
 
 ## Results
 
 ### Participants
+*Kendra will characterize sample of participants here*
 
+### EMA Adherence and Sampling Frequency
+Participants on average completed 3.1 (SD=0.6) of the 4 EMAs each day (78.4% adherence overall). Across the twelve weeks on study, EMA adherence ranged from 75.3% to 86.8%. 
 
-### EMA Compliance
+The baseline (no penalty) model used all available EMA observations for all participants (proportion of EMAs used = 1.0). As penalties for revealing an EMA observation became higher, overall sampling frequency for EMA observations decreased. The median proportion of EMAs used in the penalized models were .41 (range = .24 - .56), .24 (range = .16 - .34), .12 (range .03 - .20), and .04 (range = 0 - .10) for Lv1, Lv2, Lv3, and Lv4 respectively. 
 
-
-### Sampling Frequency
-
-```{r}
-freq |> 
-  group_by(model) |> 
-  summarise(median = median(prop), 
-            min = min(prop),
-            max = max(prop))
-```
+Figure @fig-ema presents histograms that display the distribution of the proportion of EMA observations revealed for each participant. 
 
 <!-- note these plots depict 3 proportions for each subid - 1 for each repeat-->
 ```{r}
+#| label: fig-ema
+#| echo: false
+
 freq |> 
-  filter(model != "full") |> 
+  filter(model != "no penalty") |> 
   ggplot(aes(x = prop)) +
   geom_histogram(color = "black", fill = "light grey", bins = 40) +
   facet_wrap(~model) +
   geom_vline(aes(xintercept = med), freq |> 
-               filter(model != "full") |> 
+               filter(model != "no penalty") |> 
                group_by(model) |> 
                mutate(med = median(prop))) +
   labs(title = "Histogram of proportion of surveys used by subid for each penalty",
-       x = "proportion of surveys completed")
+       x = "proportion of EMA observations revealed")
 ```
 
-Plot below is not right because id in model output does not much subid so cant match to days on study.
+There doesn't appear to be a relationship between lapse and proportion of EMA surveys revealed.
 ```{r}
+#| echo: false
+
 freq |>
-  filter(model != "full") |> 
+  filter(model != "no penalty") |> 
   left_join(lapses, by = "subid") |> 
-  ggplot(aes(x = prop, y = prop_lapse_days), alpha = .4) +
+  ggplot(aes(x = prop, y = prop_lapse_days), alpha = .8) +
   geom_point() +
   facet_wrap(~model) +
   labs(title = "Relationship between lapses and survey frequency",
-       x = "proportion of surveys completed",
+       x = "proportion of EMA surveys revealed",
        y = "proportion of study days with lapses")
 ```
 
@@ -182,7 +205,7 @@ freq |>
 
 ### Model Evaluation
 
-Median auROCs for the XGBoost and 5 neural network models are presented in the table below. <!--We won't include XGBoost in manuscript, just keeping here for now for us.-->
+Raw median auROCs for xgboost and five neural net models are presented below.
 ```{r}
 #| echo: false
 
@@ -191,8 +214,9 @@ aucs |>
   summarise(across(xgboost:nn_lv4, ~median(.x))) |> 
   ungroup() |> 
   summarise(across(xgboost:nn_lv4, ~median(.x))) |> 
-  glimpse()
+  glimpse() 
 ```
+
 
 Median posterior probabilities and 95% Bayesian credible intervals for auROC for the XGBoost and 5 neural network models are presented in the table below.
 ```{r}
@@ -202,15 +226,37 @@ pp_tibble |>
   kableExtra::kbl(digits = 3)
 ```
 
+Potential main figure
+```{r}
+#| echo: false
+
+pp_tibble |> 
+  filter(model != "xgboost") |> 
+  mutate(penalty = c(0, .02, .05, .08, .12)) |> 
+  ggplot(aes(x = penalty, y = pp_median)) +
+  geom_point(aes(color = model), size = 2) +
+  geom_segment(mapping = aes(x = penalty, y = pp_lower, yend = pp_upper,
+                             color = model), linewidth = .75) +
+  scale_y_continuous("area under ROC curve", limits = c(.5, 1)) +
+  scale_x_continuous("penalty for revealed EMA", 
+                     breaks = c(0, .02, .04, .06, .08, .10, .12)) +
+  scale_color_viridis_d(option = "D") +
+  labs(color = NULL) +
+  theme(legend.position = "bottom")
+```
+
+
 Histograms of posterior probabilities for auROC for the 5 neural network models are presented below.  
 ```{r}
 #| echo: false
 
 posteriors |> 
-  filter(model != "xgboost") |> 
   mutate(model = factor(model, 
                         levels = c("nn_full", "nn_lv1", "nn_lv2", 
-                                   "nn_lv3", "nn_lv4"))) |>
+                                   "nn_lv3", "nn_lv4"),
+                        labels = c("no penalty", "Lv1", "Lv2", 
+                                   "Lv3", "Lv4"))) |>
+  filter(model != "xgboost") |> 
   ggplot() + 
   geom_histogram(aes(x = posterior), fill = "light grey", color = "black", 
                  bins = 30) +

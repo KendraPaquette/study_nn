@@ -3,4 +3,8 @@
 ./code/freq_results
 ./code/results
 *.out
-*.csv
+.Rproj.user
+.Rhistory
+.RData
+.Ruserdata
+/.quarto/
