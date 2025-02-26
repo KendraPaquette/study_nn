@@ -39,7 +39,12 @@ pp_tibble <- read_csv(here("data/pp_perf_tibble.csv"),
 contrasts <- read_csv(here("data/contrast.csv"),
                       show_col_types = FALSE)
 freq <- read_csv(here("data/freq.csv"),
-                      show_col_types = FALSE) 
+                      show_col_types = FALSE) |> 
+  mutate(model = factor(model, 
+                        levels = c("full", "lv1", 
+                                   "lv2", "lv3", "lv4"),
+                        labels = c("no penalty", "Lv1", 
+                                   "Lv2", "Lv3", "Lv4")))
 lapses <- read_csv(here("data/lapses.csv"),
                       show_col_types = FALSE)
 ```
@@ -143,26 +148,25 @@ We then conducted Bayesian model comparisons to determine the probability that t
 ### Participants
 *Kendra will characterize sample of participants here*
 
-### EMA Adherence
+### EMA Adherence and Sampling Frequency
 Participants on average completed 3.1 (SD=0.6) of the 4 EMAs each day (78.4% adherence overall). Across the twelve weeks on study, EMA adherence ranged from 75.3% to 86.8%. 
-
-### EMA Sampling Frequency
 
 The baseline (no penalty) model used all available EMA observations for all participants (proportion of EMAs used = 1.0). As penalties for revealing an EMA observation became higher, overall sampling frequency for EMA observations decreased. The median proportion of EMAs used in the penalized models were .41 (range = .24 - .56), .24 (range = .16 - .34), .12 (range .03 - .20), and .04 (range = 0 - .10) for Lv1, Lv2, Lv3, and Lv4 respectively. 
 
-Figure X presents histograms that display the distribution of the proportion of EMA observations revealed for each participant. 
+Figure @fig-ema presents histograms that display the distribution of the proportion of EMA observations revealed for each participant. 
 
 <!-- note these plots depict 3 proportions for each subid - 1 for each repeat-->
 ```{r}
+#| label: fig-ema
 #| echo: false
 
 freq |> 
-  filter(model != "full") |> 
+  filter(model != "no penalty") |> 
   ggplot(aes(x = prop)) +
   geom_histogram(color = "black", fill = "light grey", bins = 40) +
   facet_wrap(~model) +
   geom_vline(aes(xintercept = med), freq |> 
-               filter(model != "full") |> 
+               filter(model != "no penalty") |> 
                group_by(model) |> 
                mutate(med = median(prop))) +
   labs(title = "Histogram of proportion of surveys used by subid for each penalty",
@@ -174,7 +178,7 @@ There doesn't appear to be a relationship between lapse and proportion of EMA su
 #| echo: false
 
 freq |>
-  filter(model != "full") |> 
+  filter(model != "no penalty") |> 
   left_join(lapses, by = "subid") |> 
   ggplot(aes(x = prop, y = prop_lapse_days), alpha = .8) +
   geom_point() +
@@ -189,7 +193,7 @@ freq |>
 
 ### Model Evaluation
 
-Median auROCs for the 5 neural network models are presented in the table below. <!--We won't include XGBoost in manuscript, just keeping here for now for us.-->
+Raw median auROCs for xgboost and five neural net models are presented below.
 ```{r}
 #| echo: false
 
@@ -198,7 +202,7 @@ aucs |>
   summarise(across(xgboost:nn_lv4, ~median(.x))) |> 
   ungroup() |> 
   summarise(across(xgboost:nn_lv4, ~median(.x))) |> 
-  glimpse()
+  glimpse() 
 ```
 
 
