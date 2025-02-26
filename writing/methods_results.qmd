@@ -30,7 +30,12 @@ aucs <- read_csv(here("data/auc_3_x_10.csv"),
 posteriors <- read_csv(here("data/posteriors.csv"),
                        show_col_types = FALSE)
 pp_tibble <- read_csv(here("data/pp_perf_tibble.csv"),
-                       show_col_types = FALSE)
+                       show_col_types = FALSE) |> 
+  mutate(model = factor(model, 
+                        levels = c("xgboost", "nn_full", "nn_lv1", 
+                                   "nn_lv2", "nn_lv3", "nn_lv4"),
+                        labels = c("xgboost", "no penalty", "Lv1", 
+                                   "Lv2", "Lv3", "Lv4"))) 
 contrasts <- read_csv(here("data/contrast.csv"),
                       show_col_types = FALSE)
 freq <- read_csv(here("data/freq.csv"),
@@ -205,15 +210,37 @@ pp_tibble |>
   kableExtra::kbl(digits = 3)
 ```
 
+Potential main figure
+```{r}
+#| echo: false
+
+pp_tibble |> 
+  filter(model != "xgboost") |> 
+  mutate(penalty = c(0, .02, .05, .08, .12)) |> 
+  ggplot(aes(x = penalty, y = pp_median)) +
+  geom_point(aes(color = model), size = 2) +
+  geom_segment(mapping = aes(x = penalty, y = pp_lower, yend = pp_upper,
+                             color = model), linewidth = .75) +
+  scale_y_continuous("area under ROC curve", limits = c(.5, 1)) +
+  scale_x_continuous("penalty for revealed EMA", 
+                     breaks = c(0, .02, .04, .06, .08, .10, .12)) +
+  scale_color_viridis_d(option = "D") +
+  labs(color = NULL) +
+  theme(legend.position = "bottom")
+```
+
+
 Histograms of posterior probabilities for auROC for the 5 neural network models are presented below.  
 ```{r}
 #| echo: false
 
 posteriors |> 
-  filter(model != "xgboost") |> 
   mutate(model = factor(model, 
                         levels = c("nn_full", "nn_lv1", "nn_lv2", 
-                                   "nn_lv3", "nn_lv4"))) |>
+                                   "nn_lv3", "nn_lv4"),
+                        labels = c("no penalty", "Lv1", "Lv2", 
+                                   "Lv3", "Lv4"))) |>
+  filter(model != "xgboost") |> 
   ggplot() + 
   geom_histogram(aes(x = posterior), fill = "light grey", color = "black", 
                  bins = 30) +
