@@ -8,7 +8,7 @@ import numpy as np
 import pickle
 
 class ReplayBuffer:
-    def __init__(self, max_buffer_size = 100000, max_ep_len = 1000):
+    def __init__(self, max_buffer_size = 1000000, max_ep_len = 1000):
         self.buffer = []
         self.max_buffer_size = max_buffer_size
         self.max_ep_len = max_ep_len     
@@ -21,9 +21,9 @@ class ReplayBuffer:
         self.buffer.extend(new_traj)
         if len(self.buffer) > self.max_buffer_size:
             random.shuffle(self.buffer)
-            self.buffer = self.buffer[-(self.max_buffer_size//2):]
+            self.buffer = self.buffer[(self.max_buffer_size//5):]
 
-    def get_loader(self, batch_size=512):
+    def get_loader(self, batch_size=2048):
         # dset = data.dataset(self.buffer)
         return torch.utils.data.DataLoader(self.buffer, batch_size, shuffle=True, drop_last=False)
     

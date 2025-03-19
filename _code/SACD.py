@@ -9,16 +9,17 @@ import numpy as np
 from torch.distributions import MultivariateNormal
 from torch.distributions import Categorical
 
+import random
 
-def init_SACD_agent(state_dim, action_dim, action_max, device, belief_dim=None, summary_model=None, \
-                    lr_actor=1e-4, lr_critic=2e-4, lr_summary=5e-5, gamma = 0.95, entropy_regularizer = 0.03):
+def init_SACD_agent(state_dim, action_dim, action_max, device, embed_dim = -1, summary_model=None, \
+                    lr_actor=1e-4, lr_critic=2e-4, lr_summary=-1, gamma = 0.99, weight_decay=1e-3, entropy_regularizer = 0.03):
     state_dim = state_dim  # the dimension of the state space
     action_dim = action_dim
     action_max = action_max
+    
+    if( embed_dim > 0 ):
+        state_dim = embed_dim
 
-    if belief_dim is not None:
-        state_dim = belief_dim
-        
     sacd_agent = SACD(
         state_dim=state_dim,
         action_dim=action_dim,
@@ -26,6 +27,7 @@ def init_SACD_agent(state_dim, action_dim, action_max, device, belief_dim=None, 
         lr_actor=lr_actor,
         lr_critic=lr_critic,
         gamma=gamma,
+        weight_decay=weight_decay,
         entropy_regularizer=entropy_regularizer,
         device=device,
         summary_model=summary_model,
@@ -78,13 +80,11 @@ class ActorCritic(nn.Module):
 
         self.device = device
         self.state_dim = state_dim
-
         self.action_dim = action_dim
         self.action_max = action_max
         
         # actor
         inter_dim = 256
-
         self.actor = nn.Sequential(
             nn.Linear(state_dim, inter_dim),
             nn.Tanh(),
@@ -103,7 +103,6 @@ class ActorCritic(nn.Module):
 
     def forward(self):
         raise NotImplementedError
-
         
     def act(self, state, explore=False):
         """
@@ -127,53 +126,28 @@ class ActorCritic(nn.Module):
             
         return actions, action_probs, dist_entropy
 
-    def act(self, state, explore=False):
-        """
-        :return:
-            action: [action_dim, ]
-            action_logprob: []
-            state_val: []
-        """
-
-        if( explore ):
-            action_probs = self.actor(state)
-            action_dist = Categorical(action_probs)
-            actions = action_dist.sample().view(-1, 1)
-            
-            # Avoid numerical instability.
-            z = (action_probs == 0.0).float() * 1e-8
-            log_action_probs = torch.log(action_probs + z)            
-            return actions, action_probs, log_action_probs
-        
-        else:
-            action_logits = self.actor(state)
-            greedy_actions = torch.argmax(action_logits, dim=-1, keepdim=True)
-            # print(action_logits, greedy_actions)
-            return greedy_actions
-
-    def calc_current_q(self, states, actions, rewards, next_states, dones):
-        curr_q1, curr_q2 = self.online_critic(states)            
+    def calc_current_q(self, states, actions):
+        curr_q1, curr_q2 = self.online_critic(states)  
         curr_q1 = curr_q1.gather(1, actions.long())
         curr_q2 = curr_q2.gather(1, actions.long())
         return curr_q1, curr_q2
 
-    def calc_target_q(self, states, actions, rewards, next_states, dones, alpha, gamma=1.0):      
+    def calc_target_q(self, rewards, next_states, dones, alpha, gamma=1.0):  
         with torch.no_grad():
-            _, action_probs, log_action_probs = self.act(next_states, True)
-            
+            _, action_probs, _ = self.act(next_states, True)            
             next_q1, next_q2 = self.target_critic(next_states) 
-            
             next_q = (action_probs * torch.min(next_q1, next_q2)).sum(dim=1, keepdim=True)
-            # next_q, _ = (torch.min(next_q1, next_q2)).max(dim=1, keepdim=True)
-        
-        # print(rewards.shape, next_q.shape)
+
         assert rewards.shape == next_q.shape
-        return rewards + gamma * (1.0 - dones) * 1.0 * next_q
+        return rewards + gamma * (1.0 - dones) * next_q
 
-    def calc_critic_loss(self, states, actions, rewards, next_states, dones, weights, alpha, gamma=1.0):
-        curr_q1, curr_q2 = self.calc_current_q(states, actions, rewards, next_states, dones)
-        target_q = self.calc_target_q(states, actions, rewards, next_states, dones, alpha, gamma)
-
+    def calc_critic_loss(self, states, actions, rewards, next_states, dones, alpha, gamma=1.0):
+        curr_q1, curr_q2 = self.calc_current_q(states, actions)
+        target_q = self.calc_target_q(rewards, next_states, dones, alpha, gamma)
+        
+        # if( random.random() < 0.01 ):
+        #     print('q values: ', curr_q1[11], target_q[11], rewards[11])
+        
         # TD errors for updating priority weights
         errors = torch.abs(curr_q1.detach() - target_q)
 
@@ -182,36 +156,50 @@ class ActorCritic(nn.Module):
         mean_q2 = curr_q2.detach().mean().item()
 
         # Critic loss is mean squared TD errors with priority weights.
-        q1_loss = torch.mean((curr_q1 - target_q).pow(2) * weights)
-        q2_loss = torch.mean((curr_q2 - target_q).pow(2) * weights)
+        q1_loss = torch.mean((curr_q1 - target_q).pow(2))
+        q2_loss = torch.mean((curr_q2 - target_q).pow(2))
         
         return q1_loss, q2_loss, errors, mean_q1, mean_q2
 
-    def calc_policy_loss(self, states, actions, rewards, next_states, dones, weights, alpha):
+    def calc_policy_loss(self, states, actions, rewards, next_states, dones, alpha):
         # (Log of) probabilities to calculate expectations of Q and entropies.
-        actions, action_probs, log_action_probs = self.act(states.detach(), True)
+        actions, action_probs, entropies = self.act(states.detach(), True)
+        
         with torch.no_grad():
             # Q for every actions to calculate expectations of Q.
             q1, q2 = self.online_critic(states)
             q = torch.min(q1, q2)
-
-        # Expectations of entropies.
-        entropies = -torch.sum(action_probs * log_action_probs, dim=1, keepdim=True)
 
         # Expectations of Q.
         q = torch.sum(q * action_probs, dim=1, keepdim=True)
 
         # Policy objective is maximization of (Q + alpha * entropy) with
         # priority weights.
-        policy_loss = (weights * (- q - alpha * entropies)).mean()
-                
+        policy_loss = (- q - alpha * entropies).mean()
         return policy_loss, entropies
 
-
+    
+    
+from model import get_configuration
+class StateEmbedder(nn.Module):
+    def __init__(self, state_dim, device):
+        super(StateEmbedder, self).__init__()
+        
+        gru_config = get_configuration(state_dim, 1, 4)
+        self.seq = nn.GRU(**gru_config)
+        self.t_embedder = nn.Embedding(2, state_dim)
+        
+    def forward(self, types, bfs):
+        B,d = bfs.shape
+        t_embed = self.t_embedder(types.int())
+        zs = torch.stack((bfs, t_embed), dim=1)
+        ret, _ = self.seq(zs)
+        return ret[:,-1]
+    
 class SACD:
     def __init__(
             self, state_dim, action_dim, action_max, lr_actor, lr_critic, gamma, entropy_regularizer,
-            device=torch.device('cpu'), summary_model=None, lr_summary=-1
+            device=torch.device('cpu'), summary_model=None, lr_summary=-1, weight_decay=1e-3
     ):
         """
         :param state_dim: state dimension
@@ -234,30 +222,18 @@ class SACD:
         self.gamma = gamma
         self.target_entropy = -np.log(1.0 / action_max) * 0.98
         
-        self.policy = ActorCritic(state_dim, action_dim, action_max, self.device).to \
-            (self.device)
+        self.policy = ActorCritic(state_dim, action_dim, action_max, self.device).to(self.device)
+        self.state_embedder = StateEmbedder(state_dim, self.device).to(self.device)
         
-        self.lr_actor = lr_actor
-        self.lr_critic = lr_critic
-        
-        if summary_model is not None and lr_summary > 0:
-            self.q_optimizer = torch.optim.Adam([
-                {'params': summary_model.parameters(), 'lr': lr_summary, 'weight_decay': 1e-6},
-                {'params': self.policy.online_critic.Q1.parameters(), 'lr': lr_critic, 'weight_decay': 1e-8},
-                {'params': self.policy.online_critic.Q2.parameters(), 'lr': lr_critic, 'weight_decay': 1e-8}
-            ])
-            self.lr_summary = lr_summary
-            self.summary_model = summary_model
-            self.update_summary = True
-        else:
-            self.q_optimizer = torch.optim.Adam([
-                {'params': self.policy.online_critic.Q1.parameters(), 'lr': lr_critic, 'weight_decay': 1e-8},
-                {'params': self.policy.online_critic.Q2.parameters(), 'lr': lr_critic, 'weight_decay': 1e-8}
-            ])
-            self.update_summary = False
+        self.q_optimizer = torch.optim.Adam([
+            {'params': self.state_embedder.parameters(), 'lr': lr_critic, 'weight_decay': weight_decay},
+            {'params': self.policy.online_critic.Q1.parameters(), 'lr': lr_critic, 'weight_decay': weight_decay},
+            {'params': self.policy.online_critic.Q2.parameters(), 'lr': lr_critic, 'weight_decay': weight_decay}
+        ])
+        self.update_summary = False
 
         self.optimizer = torch.optim.Adam([
-            {'params': self.policy.actor.parameters(), 'lr': lr_actor, 'weight_decay': 1e-8}
+            {'params': self.policy.actor.parameters(), 'lr': lr_actor, 'weight_decay': weight_decay}
         ])
         
         # We optimize log(alpha), instead of alpha.
@@ -265,30 +241,31 @@ class SACD:
         self.mse_criterion = torch.nn.MSELoss(reduction='none')
         self.ce_criterion = torch.nn.CrossEntropyLoss(reduction='none')
         
-        
     def update_target(self):
         self.policy.target_critic.load_state_dict(self.policy.online_critic.state_dict())
         
-    def select_action(self, state, explore=True):
+    def select_action(self, bfs, types, explore=True):
         """
         :param state: shape [state_dim]
         returned: action: shape [action_dim]
                     ??
         """
+        state = self.state_embedder(types, bfs)
         return self.policy.act(state, explore)
     
-
     def update(self, batch):
-        states, actions, rewards, next_states, dones = batch
+        ptypes, pbfs, actions, rewards, ntypes, nbfs, dones = batch
+        states = self.state_embedder(ptypes, pbfs)
+        next_states = self.state_embedder(ntypes, nbfs)
         
         q1_loss, q2_loss, errors, mean_q1, mean_q2 = self.policy.calc_critic_loss(states, actions, rewards, next_states, \
-                                                                                  dones, 1, self.alpha, self.gamma)
+                                                                                  dones, self.alpha, self.gamma)
 
         (q1_loss + q2_loss).backward()
         self.q_optimizer.step()
         self.q_optimizer.zero_grad()
   
-        policy_loss, entropies = self.policy.calc_policy_loss(states, actions, rewards, next_states, dones, 1, self.alpha)
+        policy_loss, _ = self.policy.calc_policy_loss(states, actions, rewards, next_states, dones, self.alpha)
 
         (policy_loss).backward()
         self.optimizer.step()
