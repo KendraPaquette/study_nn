@@ -109,15 +109,59 @@ Models were run on an NVIDIA GeForce RTX 3090. <!--lets talk about what this is 
 
 <!--Should we include a sentence saying models were trained and evaluated using Python (Version #) and list any major packages used?-->
 
-### Environment Setup
 
-We formulate the survey design problem as offline reinforcement learning (RL). Specifically, we model the interaction with each participant as an episode. Our goal is to design a survey plan that maximizes the expected cumulative rewards (and minimize penalties) over all participants during the entire episodes. That is, we consider each participant as a new environment instantiated out of $N$ environments; each environment is simulated based on the offline survey data collected in.
+### Problem Setup
 
-In each episode with a participant, at each $t^{th}$ time-step, we either ask (1) whether or not to reveal the survey, or (2) to predict the next 24-hour window lapse. When we get the next survey $X_t$ from the participant (the former), we choose a binary action at deciding whether to reveal the survey or not; that is, we do not observe the survey ot = 0 without penalty if at = 0, and observe the received survey ot = Xt if at = 1, with a penalty depending on penalty levels. This penalty level is a control factor that balances the survey frequency and the prediction accuracy. If the environment asks to predict the next 24-hour window lapse event yt (the latter), an agent does not get any observation, only getting a hidden reward/penalty depending on whether the prediction is correct. <!--finish updating math syntax - see https://qmd4sci.njtierney.com/math.html-->
+#### Notation
+
+$x_t$: $t^{th}$ survey response from a participant in the offline survey
+
+$o_t$: observation to an agent returned from a simulated environment at $t^{th}$ time-step
+
+$a_t$: action indicating whether to reveal the survey at $t^{th}$ time-step
+
+$r_t$: reward (penalty) given to the agent
+
+$T_t$: actual data-of-time when $t^{th}$ survey is collected
+
+
+#### Simulated Environment
+
+Our goal is to design a survey plan that maximizes the expected cumulative rewards (and minimize penalties) averaged over all participants during the entire episodes. We formulate the survey design problem as reinforcement learning (RL). We consider each set of surveys from the same participant as a *simulated* environment instantiated out of $N$ environments; each environment is simulated based on the offline survey data collected in. Specifically, in each episode with a participant randomly chosen from $N$ environments, at each $t^{th}$ time-step, the environment either asks (1) whether or not to collect the survey, or (2) to predict the next 24-hour window lapse. 
+
+In the former case (1), when we get the next survey $o_t$ from the participant, we choose a binary action at deciding whether to collect the survey or not; that is, we do not observe the survey $o_t = null$ without penalty if $a_t = 0$. If we chose to collect the survey $a_t=1$, then the environment returns $o_t$ that simulates a patient's response based on surveys collected between last survey collection point and the current point. Specifically, if $t_p < t$ is the last time we collected the survey, the simulated environment takes the actual offline surveys $(x_{t_p+1},...,x_t)$; for the first 5 items that ask the values at *the most* intense moment, we take a maximum values over them, and for the remaining items, we take the values from $x_t$. In this case, the agent also gets a penalty $r_t < 0$. 
+
+In the latter case (2), if the environment asks to predict the next 24-hour window lapse event $y_t$. In this phase, an agent gets a penalty if the latest survey collection point is 15 days before from the current query point, then it gets a big penalty $r_t \ll 0$ for not keeping the record up to date. This is a safe-guard: we want to regularly check up at least every 15 days. Otherwise, an agent gets no new observations, i.e., $x_t = o_t = null$, regardless of the chosen action. Instead, there is an unobserved penalty depending on the prediction accuracy. We calculate the prediction penalty in the two following ways:
+
+a. $-c_0 * D_H(\mathbb{P}(y|x_1,...,x_t), \mathbb{P}(y|o_1,...,o_t))$
+
+b. $c_0 * (1-y) * \min(p_0 - \mathbb{P}(y=1|o_1,...,o_t), 0) + c_1 * y * \min(0, \mathbb{P}(y=1|o_1,...,o_t) - p_1)$
+
+where $D_H$ is Helligner distance, and $c_0, c_1, p_0, p_1 > 0$ are adjustable hyper-parameters. While we do not have an access to the true conditional probability, we use the estimated probability from the trained prediction network (see Model Architectures). 
 
 
 ### Problem Formulation
-We consider the framework in the context of partially observed Markov Decision Processes. 
+We consider the framework in the context of reinforcement learning in Markov Decision Processes. 
+
+Reward uses estimated probabilities from feature network...
+
+
+
+
+
+#### Feature Engineering
+
+We use the similar sliding-window approach to (@wyantMachineLearningModels2024) for feature engineering, but with the simulated surveys $(o_1,...,o_t)$ instead of actual EMA data $(x_1,...,x_t)$. Specifically, we concatenate the following features:
+
+- For the first 7 survey items, let $t_p$ be the starting of the sliding window for $k$-hours, i.e., $T_{t_p-1}<T_t - k<=T_{t_p}$. Compute mean, standard deviation and maximum of each collected survey item and concatenate them all. We also append the feature with number of collected surveys within the sliding-window $(o_{t_p}, ..., o_t)$. We use 5 window sizes $k=12,24,48,72,168$. 
+
+- For the last 3 survey items that collected only at the morning, let $t_p$ be the starting of the sliding window for $k$-hours, i.e., $T_{t_p-1}<T_t - k<=T_{t_p}$. Compute mean, minimum and maximum of each collected survey item and concatenate them all. We also append the feature with number of collected surveys within the sliding-window $(o_{t_p}, ..., o_t)$. We use 3 window sizes $k=48,72,148$. 
+
+- We take the mean and standard deviations of all collected surveys from the beginning.
+
+- Finally, we append the feature with the actual time passed from the last survey. 
+
+<!--finish updating math syntax - see https://qmd4sci.njtierney.com/math.html-->
 
 
 
@@ -135,47 +179,36 @@ Specifically, our training pipeline can be described as consisting of two networ
 knitr::include_graphics(path = here::here("figures/methods.png"), error = FALSE)
 ```
 
-#### 1. Summarizer Network
-
-<!--I'm not sure what a summarizer network is. Maybe explain it in a few sentences.-->
-Our default configuration employs transformer architectures for the summarizing model. For implementing the transformer model, we adhere to the minimal implementation of NanoGPT’s standard framework1. We use an Embedding layer for discrete actions. For the policy network, we employ the soft actor-critic method for discrete actions (SACD). We use the base two-layer fully-connected architecture for both actor and critic networks. The lapse prediction network uses a single Gated Recurrent Unit (GRU) network. <!--Move this to prediction network section?-->
+<!--I'm not sure what a summarizer network is. Maybe explain it in a few sentences.Our default configuration employs transformer architectures for the summarizing model. For implementing the transformer model, we adhere to the minimal implementation of NanoGPT’s standard framework1. We use an Embedding layer for discrete actions. For the policy network, we employ the soft actor-critic method for discrete actions (SACD). We use the base two-layer fully-connected architecture for both actor and critic networks. The lapse prediction network uses a single Gated Recurrent Unit (GRU) network. <!--Move this to prediction network section?-->
 
 <!--Jeongyeol: This network can be replaced by the manual feature-engineering we do-->
+
+#### 1. Latent Representation
+
+The engineered features will be passed through a building block to yield common representations for both prediction and reinforcement learning tasks.  
 
 
 #### 2. Policy Network
 
 In this phase, the goal is to learn a survey policy that maximizes the cumulative returns – the sum of all rewards and penalties – averaged over all participants. The policy takes all previous observations, which we call a historical context or simply history, and decides an action to take. <!--Jeongyeol: Then we do the feature engineering-->
 
-New trajectories are with the current policy π, which takes an engineered feature φ(ht) as an input and outputs the next action. π is updated to maximize the long-term returns of the system. <!--update math notation-->
+New trajectories are with the current policy $\pi$, which takes an engineered feature φ(ht) as an input and outputs the next action. $\pi$ is updated to maximize the long-term returns of the system. <!--update math notation-->
 
 
 <!--Add Partially Observed Markov Decision Processes and Objective Formulation and Algorithm 1 here?-->
 
 #### 3. Prediction Network
 
-Predictions were made into 24-hour windows (i.e., the probability of a lapse in the next 24 hours). The first prediction window for each participant started 24 hours from midnight on their study start date. Subsequent prediction window start times for each participant repeatedly rolled forward hour-by-hour until the end of their study participation.
+Predictions were made into 24-hour windows given the engineered features (i.e., the probability of a lapse in the next 24 hours). The first prediction window for each participant started 24 hours from midnight on their study start date. Subsequent prediction window start times for each participant repeatedly rolled forward hour-by-hour until the end of their study participation.
 
-The start and end date/time of past drinking episodes were reported on the first EMA item. A prediction window was labeled lapse if the start date/hour of any drinking episode fell within that window. A window was labeled no lapse if no alcohol use occurred within that window +/- 24 hours. If no alcohol use occurred within the window but did occur within 24 hours of the start or end of the window, the window was excluded. We ended up with a total of 274,179 labels. <!--a bit of clarification needed: I examined all queries and observed that data seems redundant in consecutive label queries (without received surveys in-between); I know there are minor feature changes at different query times, but it seems that differences are minor and XGBoost performance does not seem to benefit from this duplication. To make my experiments a bit lighter, I compressed every consecutive label queries into one label query, which resulted in ~36000 labels in total.-->
+
+### Training and Validation
+The start and end date/time of past drinking episodes were reported on the first EMA item. A prediction window was labeled lapse if the start date/hour of any drinking episode fell within that window. A window was labeled no lapse if no alcohol use occurred within that window +/- 24 hours. If no alcohol use occurred within the window but did occur within 24 hours of the start or end of the window, the window was excluded. We ended up with a total of 274,179 labels ==> removed redundant label queries, ending up in 37216 label query points. <!--a bit of clarification needed: I examined all queries and observed that data seems redundant in consecutive label queries (without received surveys in-between); I know there are minor feature changes at different query times, but it seems that differences are minor and XGBoost performance does not seem to benefit from this duplication. To make my experiments a bit lighter, I compressed every consecutive label queries into one label query, which resulted in ~36000 labels in total.-->
 
 We used 3 repeats of 10-fold cross-validation to evaluate our models with auROC. auROC indexes the probability that the model will predict a higher score for a randomly selected positive case (lapse) relative to a randomly selected negative case (no lapse). We used grouped cross-validation to assign all data from a participant as either held-in or held-out to avoid bias introduced when predicting a participant’s data from their own data. 
-Prediction network takes an engineered representation of histories and predict the lapse event within the 24 hours window. 
+Prediction network takes an engineered representation of histories and predict the lapse event within the 24 hours window. JY TODO: Also need to mention Soft Actor-Critic RL training.  
 
 
-
-### Reward Function Engineering
-
-
-Below should be changed... 
-
-<!--Does this make sense to put here?--> We considered four penalty levels (LV) that penalized the model for each survey observation shown: -.02, -.05, -.08, and -.12. Models also learned from penalties and rewards related to the accuracy of their predicted lapses. Models were rewarded .05 or .03 for correctly labeling a lapse or no lapse, respectively. Models were penalized -.2 or -1.2 for incorrectly labeling a lapse or no lapse, respectively. <!--How did you arrive at these reward/penalty values? Were they randomly selected?-->
-
-
-Current reward candidates:
-
-1. $(P(Y=1| \text{partial surveys}) - P(Y=1| \text{all survey}))^2$
-
-2. $Y * \log P(Y=1| \text{partial surveys}) + (1-Y) * \log P(Y=0| \text{partial surveys})$ - this is from Yoon et al.
 
 
 
@@ -187,7 +220,7 @@ Current reward candidates:
 XGBoost vs NN (2 Layer-FCN)
 AUC is comparable with full observations.
 
-Another baseline: Random dropout (66%, 90%)
+Another baseline: Random dropout (80%~90%)
 
 RL with Learning: Penalty and reward candidates?
 
@@ -342,3 +375,18 @@ contrasts |>
   knitr::kable(digits = 3)
 ```
 
+
+
+
+
+## Appendix
+
+### Implementation Details
+
+#### RL Algorithm
+
+#### Feature Engineering
+
+#### Hyperparameters
+
+#### ...
